@@ -1,0 +1,939 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;600;700;800&amp;family=Figtree:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+html,body{margin:0;padding:0;background:#FAF6F0;}
+*{box-sizing:border-box;}
+a{color:#A8552E;text-decoration:none;}
+a:hover{color:#8A431F;text-decoration:underline;}
+select:focus,input:focus,button:focus-visible{outline:2px solid #C2683C;outline-offset:1px;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+</style>
+</helmet>
+<div style="min-height:100vh;background:#FAF6F0;font-family:'Figtree',sans-serif;color:#3A3227;display:flex;flex-direction:column;">
+  <header style="max-width:1120px;width:100%;margin:0 auto;padding:18px 20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+    <div style="display:flex;align-items:center;gap:10px;cursor:pointer;" onClick="{{ goCalc }}">
+      <div style="width:36px;height:36px;border-radius:12px;background:#C2683C;color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:12px;letter-spacing:0.5px;">CRS</div>
+      <div>
+        <div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:17px;line-height:1.1;">Scenario Planner</div>
+        <div style="font-size:11.5px;color:#8A7D6B;">Express Entry · saves to your browser</div>
+      </div>
+    </div>
+    <nav style="display:flex;gap:4px;background:#F1E9DC;border-radius:999px;padding:4px;margin-left:auto;flex-wrap:wrap;">
+      <button onClick="{{ goCalc }}" style="{{ tabCalcStyle }}" style-hover="color:#3A3227">Calculator</button>
+      <button onClick="{{ goScen }}" style="{{ tabScenStyle }}" style-hover="color:#3A3227">My scenarios<sc-if value="{{ hasScenarios }}" hint-placeholder-val="{{ false }}"><span style="background:#C2683C;color:#fff;border-radius:999px;font-size:11px;font-weight:700;padding:1px 7px;margin-left:7px;">{{ scenarioCount }}</span></sc-if></button>
+      <button onClick="{{ goComp }}" style="{{ tabCompStyle }}" style-hover="color:#3A3227">Compare</button>
+    </nav>
+    <a href="{{ donateUrl }}" target="_blank" rel="noopener" onClick="{{ onDonate }}" style="border:1.5px solid #C2683C;color:#A8552E;border-radius:999px;padding:8px 18px;font-weight:700;font-size:13.5px;text-decoration:none;" style-hover="background:#F8E7D9;text-decoration:none">Donate</a>
+  </header>
+
+  <sc-if value="{{ isCalc }}" hint-placeholder-val="{{ true }}">
+  <main data-screen-label="Calculator" style="max-width:1120px;width:100%;margin:0 auto;padding:8px 20px 40px;flex:1;">
+    <sc-if value="{{ showBanner }}" hint-placeholder-val="{{ true }}">
+      <div style="background:#FBF3E2;border:1px solid #EAD9AC;border-radius:16px;padding:13px 18px;display:flex;gap:12px;align-items:flex-start;margin-bottom:20px;font-size:13.5px;color:#6E6046;line-height:1.5;">
+        <div style="flex:1;"><strong style="color:#5C4E33;">Heads up:</strong> this tool is informational only, not immigration advice. Scores are our best effort and may differ from the official IRCC calculation — always confirm with the official tool before making decisions.</div>
+        <button onClick="{{ dismissBanner }}" aria-label="Dismiss" style="background:none;border:none;cursor:pointer;font-size:16px;color:#A6935F;padding:2px;line-height:1;">✕</button>
+      </div>
+    </sc-if>
+    <div style="display:flex;flex-wrap:wrap;gap:24px;align-items:flex-start;">
+      <div style="flex:1 1 540px;min-width:0;display:flex;flex-direction:column;gap:18px;">
+
+        <div style="background:#fff;border:1px solid #ECE3D4;border-radius:20px;padding:26px;box-shadow:0 1px 2px rgba(60,45,25,0.04);">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;">
+            <div style="width:26px;height:26px;border-radius:9px;background:#F8E7D9;color:#A8552E;font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center;">1</div>
+            <h2 style="font-family:'Bricolage Grotesque',sans-serif;font-size:19px;font-weight:700;margin:0;">Your family situation</h2>
+          </div>
+          <div style="font-size:15px;font-weight:600;color:#4A4234;margin-bottom:10px;">Do you have a spouse or common-law partner?</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <sc-for list="{{ qSpouse }}" as="o" hint-placeholder-count="2"><button onClick="{{ o.onClick }}" style="{{ o.style }}" style-hover="border-color:#C2683C">{{ o.label }}</button></sc-for>
+          </div>
+          <sc-if value="{{ showSpousePR }}" hint-placeholder-val="{{ false }}">
+            <div style="margin-top:20px;">
+              <div style="font-size:15px;font-weight:600;color:#4A4234;margin-bottom:10px;">Is your partner already a Canadian citizen or permanent resident?</div>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                <sc-for list="{{ qSpousePR }}" as="o" hint-placeholder-count="2"><button onClick="{{ o.onClick }}" style="{{ o.style }}" style-hover="border-color:#C2683C">{{ o.label }}</button></sc-for>
+              </div>
+            </div>
+          </sc-if>
+          <sc-if value="{{ showPRNote }}" hint-placeholder-val="{{ false }}">
+            <div style="margin-top:16px;background:#EDF4EC;border:1px solid #CFE3CD;border-radius:14px;padding:12px 16px;font-size:13.5px;color:#3E6B4A;line-height:1.5;">Good news — since your partner is already a citizen or PR, you're scored with the higher <strong>single-applicant</strong> tables, and we can skip all the partner questions.</div>
+          </sc-if>
+          <sc-if value="{{ showSpouseAcc }}" hint-placeholder-val="{{ false }}">
+            <div style="margin-top:20px;">
+              <div style="font-size:15px;font-weight:600;color:#4A4234;margin-bottom:10px;">Will your partner come with you to Canada?</div>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                <sc-for list="{{ qSpouseAcc }}" as="o" hint-placeholder-count="2"><button onClick="{{ o.onClick }}" style="{{ o.style }}" style-hover="border-color:#C2683C">{{ o.label }}</button></sc-for>
+              </div>
+            </div>
+          </sc-if>
+        </div>
+
+        <div style="background:#fff;border:1px solid #ECE3D4;border-radius:20px;padding:26px;box-shadow:0 1px 2px rgba(60,45,25,0.04);">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;">
+            <div style="width:26px;height:26px;border-radius:9px;background:#F8E7D9;color:#A8552E;font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center;">2</div>
+            <h2 style="font-family:'Bricolage Grotesque',sans-serif;font-size:19px;font-weight:700;margin:0;">About you</h2>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:18px;margin-bottom:20px;">
+            <label style="display:block;">
+              <div style="font-size:15px;font-weight:600;color:#4A4234;margin-bottom:8px;">How old are you?</div>
+              <select value="{{ ageValue }}" onChange="{{ onAge }}" style="width:100%;padding:10px 12px;border-radius:12px;border:1.5px solid #E7DECE;background:#fff;font-size:14px;font-family:inherit;color:#3A3227;">
+                <option value="">Select your age…</option>
+                <sc-for list="{{ ageOptions }}" as="o" hint-placeholder-count="3"><option value="{{ o.v }}">{{ o.label }}</option></sc-for>
+              </select>
+            </label>
+            <label style="display:block;">
+              <div style="font-size:15px;font-weight:600;color:#4A4234;margin-bottom:8px;">Highest level of education</div>
+              <select value="{{ eduValue }}" onChange="{{ onEdu }}" style="width:100%;padding:10px 12px;border-radius:12px;border:1.5px solid #E7DECE;background:#fff;font-size:14px;font-family:inherit;color:#3A3227;">
+                <option value="">Select education level…</option>
+                <sc-for list="{{ eduOptions }}" as="o" hint-placeholder-count="3"><option value="{{ o.v }}">{{ o.label }}</option></sc-for>
+              </select>
+            </label>
+          </div>
+          <div style="font-size:15px;font-weight:600;color:#4A4234;margin-bottom:8px;">Was any of that education earned in Canada?</div>
+          <div style="font-size:13px;color:#8A7D6B;margin-bottom:10px;">This doesn't change your core education points — it only unlocks the "study in Canada" bonus.</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <sc-for list="{{ qEduCanada }}" as="o" hint-placeholder-count="2"><button onClick="{{ o.onClick }}" style="{{ o.style }}" style-hover="border-color:#C2683C">{{ o.label }}</button></sc-for>
+          </div>
+          <sc-if value="{{ showEduLen }}" hint-placeholder-val="{{ false }}">
+            <div style="margin-top:18px;">
+              <div style="font-size:15px;font-weight:600;color:#4A4234;margin-bottom:10px;">How long was that Canadian credential?</div>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                <sc-for list="{{ qEduLen }}" as="o" hint-placeholder-count="2"><button onClick="{{ o.onClick }}" style="{{ o.style }}" style-hover="border-color:#C2683C">{{ o.label }}</button></sc-for>
+              </div>
+            </div>
+          </sc-if>
+        </div>
+
+        <div style="background:#fff;border:1px solid #ECE3D4;border-radius:20px;padding:26px;box-shadow:0 1px 2px rgba(60,45,25,0.04);">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;">
+            <div style="width:26px;height:26px;border-radius:9px;background:#F8E7D9;color:#A8552E;font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center;">3</div>
+            <h2 style="font-family:'Bricolage Grotesque',sans-serif;font-size:19px;font-weight:700;margin:0;">Work experience</h2>
+          </div>
+          <div style="font-size:15px;font-weight:600;color:#4A4234;margin-bottom:10px;">Years of skilled work experience in Canada</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px;">
+            <sc-for list="{{ qCdnWork }}" as="o" hint-placeholder-count="6"><button onClick="{{ o.onClick }}" style="{{ o.style }}" style-hover="border-color:#C2683C">{{ o.label }}</button></sc-for>
+          </div>
+          <div style="font-size:15px;font-weight:600;color:#4A4234;margin-bottom:10px;">Years of skilled work experience outside Canada</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px;">
+            <sc-for list="{{ qForeignWork }}" as="o" hint-placeholder-count="4"><button onClick="{{ o.onClick }}" style="{{ o.style }}" style-hover="border-color:#C2683C">{{ o.label }}</button></sc-for>
+          </div>
+          <div style="font-size:15px;font-weight:600;color:#4A4234;margin-bottom:10px;">Do you have a certificate of qualification in a trade from a Canadian province or territory?</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <sc-for list="{{ qTrade }}" as="o" hint-placeholder-count="2"><button onClick="{{ o.onClick }}" style="{{ o.style }}" style-hover="border-color:#C2683C">{{ o.label }}</button></sc-for>
+          </div>
+        </div>
+
+        <div style="background:#fff;border:1px solid #ECE3D4;border-radius:20px;padding:26px;box-shadow:0 1px 2px rgba(60,45,25,0.04);">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;">
+            <div style="width:26px;height:26px;border-radius:9px;background:#F8E7D9;color:#A8552E;font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center;">4</div>
+            <h2 style="font-family:'Bricolage Grotesque',sans-serif;font-size:19px;font-weight:700;margin:0;">Language</h2>
+          </div>
+          <label style="display:block;max-width:340px;margin-bottom:16px;">
+            <div style="font-size:15px;font-weight:600;color:#4A4234;margin-bottom:8px;">First official language — which test did you take?</div>
+            <select value="{{ l1TestValue }}" onChange="{{ onL1Test }}" style="width:100%;padding:10px 12px;border-radius:12px;border:1.5px solid #E7DECE;background:#fff;font-size:14px;font-family:inherit;color:#3A3227;">
+              <sc-for list="{{ testOptions }}" as="t" hint-placeholder-count="3"><option value="{{ t.v }}" disabled="{{ t.disabled }}">{{ t.label }}</option></sc-for>
+            </select>
+          </label>
+          <div style="font-size:13px;color:#8A7D6B;margin-bottom:12px;">Pick the score band you got for each ability — these are {{ l1TestName }} bands, not CLB levels.</div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:8px;">
+            <sc-for list="{{ l1Bands }}" as="b" hint-placeholder-count="4">
+              <label style="display:block;">
+                <div style="font-size:13px;font-weight:600;color:#6E6250;margin-bottom:6px;">{{ b.label }}</div>
+                <select value="{{ b.value }}" onChange="{{ b.onChange }}" style="width:100%;padding:9px 10px;border-radius:12px;border:1.5px solid #E7DECE;background:#fff;font-size:13.5px;font-family:inherit;color:#3A3227;">
+                  <option value="">Band…</option>
+                  <sc-for list="{{ b.options }}" as="op"><option value="{{ op }}">{{ op }}</option></sc-for>
+                </select>
+              </label>
+            </sc-for>
+          </div>
+          <div style="border-top:1px dashed #ECE3D4;margin:20px 0;"></div>
+          <div style="font-size:15px;font-weight:600;color:#4A4234;margin-bottom:8px;">Second official language (French)</div>
+          <div style="font-size:13px;color:#8A7D6B;margin-bottom:10px;">Only a French test counts as a second language — it adds core points plus a French-skills bonus.</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <sc-for list="{{ qL2Test }}" as="o" hint-placeholder-count="3"><button onClick="{{ o.onClick }}" style="{{ o.style }}" style-hover="border-color:#C2683C">{{ o.label }}</button></sc-for>
+          </div>
+          <sc-if value="{{ showL2Bands }}" hint-placeholder-val="{{ false }}">
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-top:16px;">
+              <sc-for list="{{ l2Bands }}" as="b" hint-placeholder-count="4">
+                <label style="display:block;">
+                  <div style="font-size:13px;font-weight:600;color:#6E6250;margin-bottom:6px;">{{ b.label }}</div>
+                  <select value="{{ b.value }}" onChange="{{ b.onChange }}" style="width:100%;padding:9px 10px;border-radius:12px;border:1.5px solid #E7DECE;background:#fff;font-size:13.5px;font-family:inherit;color:#3A3227;">
+                    <option value="">Band…</option>
+                    <sc-for list="{{ b.options }}" as="op"><option value="{{ op }}">{{ op }}</option></sc-for>
+                  </select>
+                </label>
+              </sc-for>
+            </div>
+          </sc-if>
+        </div>
+
+        <sc-if value="{{ spouseSection }}" hint-placeholder-val="{{ false }}">
+        <div style="background:#fff;border:1px solid #ECE3D4;border-radius:20px;padding:26px;box-shadow:0 1px 2px rgba(60,45,25,0.04);">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;">
+            <div style="width:26px;height:26px;border-radius:9px;background:#F8E7D9;color:#A8552E;font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center;">5</div>
+            <h2 style="font-family:'Bricolage Grotesque',sans-serif;font-size:19px;font-weight:700;margin:0;">Your partner</h2>
+            <span style="font-size:12px;color:#8A7D6B;background:#F5EFE5;border-radius:999px;padding:3px 10px;">up to 40 points</span>
+          </div>
+          <label style="display:block;max-width:340px;margin-bottom:20px;">
+            <div style="font-size:15px;font-weight:600;color:#4A4234;margin-bottom:8px;">Partner's highest level of education</div>
+            <select value="{{ spEduValue }}" onChange="{{ onSpEdu }}" style="width:100%;padding:10px 12px;border-radius:12px;border:1.5px solid #E7DECE;background:#fff;font-size:14px;font-family:inherit;color:#3A3227;">
+              <option value="">Select education level…</option>
+              <sc-for list="{{ eduOptions }}" as="o"><option value="{{ o.v }}">{{ o.label }}</option></sc-for>
+            </select>
+          </label>
+          <div style="font-size:15px;font-weight:600;color:#4A4234;margin-bottom:10px;">Partner's years of skilled work in Canada</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px;">
+            <sc-for list="{{ qSpWork }}" as="o" hint-placeholder-count="6"><button onClick="{{ o.onClick }}" style="{{ o.style }}" style-hover="border-color:#C2683C">{{ o.label }}</button></sc-for>
+          </div>
+          <label style="display:block;max-width:340px;margin-bottom:16px;">
+            <div style="font-size:15px;font-weight:600;color:#4A4234;margin-bottom:8px;">Partner's language test</div>
+            <select value="{{ spTestValue }}" onChange="{{ onSpTest }}" style="width:100%;padding:10px 12px;border-radius:12px;border:1.5px solid #E7DECE;background:#fff;font-size:14px;font-family:inherit;color:#3A3227;">
+              <sc-for list="{{ testOptions }}" as="t"><option value="{{ t.v }}" disabled="{{ t.disabled }}">{{ t.label }}</option></sc-for>
+            </select>
+          </label>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;">
+            <sc-for list="{{ spBands }}" as="b" hint-placeholder-count="4">
+              <label style="display:block;">
+                <div style="font-size:13px;font-weight:600;color:#6E6250;margin-bottom:6px;">{{ b.label }}</div>
+                <select value="{{ b.value }}" onChange="{{ b.onChange }}" style="width:100%;padding:9px 10px;border-radius:12px;border:1.5px solid #E7DECE;background:#fff;font-size:13.5px;font-family:inherit;color:#3A3227;">
+                  <option value="">Band…</option>
+                  <sc-for list="{{ b.options }}" as="op"><option value="{{ op }}">{{ op }}</option></sc-for>
+                </select>
+              </label>
+            </sc-for>
+          </div>
+        </div>
+        </sc-if>
+
+        <div style="background:#fff;border:1px solid #ECE3D4;border-radius:20px;padding:26px;box-shadow:0 1px 2px rgba(60,45,25,0.04);">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;">
+            <div style="width:26px;height:26px;border-radius:9px;background:#F8E7D9;color:#A8552E;font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center;">{{ boostNum }}</div>
+            <h2 style="font-family:'Bricolage Grotesque',sans-serif;font-size:19px;font-weight:700;margin:0;">Extra points</h2>
+          </div>
+          <div style="font-size:15px;font-weight:600;color:#4A4234;margin-bottom:10px;">Do you have a provincial or territorial nomination?</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px;">
+            <sc-for list="{{ qPN }}" as="o" hint-placeholder-count="2"><button onClick="{{ o.onClick }}" style="{{ o.style }}" style-hover="border-color:#C2683C">{{ o.label }}</button></sc-for>
+          </div>
+          <div style="font-size:15px;font-weight:600;color:#4A4234;margin-bottom:10px;">Do you have a sibling in Canada who is a citizen or PR (18 or older)?</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px;">
+            <sc-for list="{{ qSibling }}" as="o" hint-placeholder-count="2"><button onClick="{{ o.onClick }}" style="{{ o.style }}" style-hover="border-color:#C2683C">{{ o.label }}</button></sc-for>
+          </div>
+          <div style="background:#F9F5EC;border:1px solid #EFE7DA;border-radius:14px;padding:14px 16px;font-size:13.5px;color:#6E6250;line-height:1.7;">
+            <div style="font-weight:700;color:#5C5142;margin-bottom:4px;">Applied automatically from your answers above</div>
+            <div>Study in Canada: <strong>{{ studyBonusLabel }}</strong></div>
+            <div>French-language bonus: <strong>{{ frenchBonusLabel }}</strong></div>
+          </div>
+        </div>
+      </div>
+
+      <div style="flex:1 1 300px;max-width:390px;position:sticky;top:16px;">
+        <div style="background:#fff;border:1px solid #ECE3D4;border-radius:20px;padding:26px;box-shadow:0 6px 24px rgba(60,45,25,0.07);">
+          <sc-if value="{{ editingChip }}" hint-placeholder-val="{{ false }}">
+            <div style="display:inline-block;background:#F1E9DC;color:#6E6250;border-radius:999px;padding:4px 12px;font-size:12px;font-weight:700;margin-bottom:14px;">Editing: {{ editingName }}</div>
+          </sc-if>
+          <sc-if value="{{ hasResult }}" hint-placeholder-val="{{ false }}">
+            <div style="animation:fadeUp .35s ease;">
+              <div style="font-size:13px;font-weight:700;color:#8A7D6B;text-transform:uppercase;letter-spacing:0.08em;">Your CRS score</div>
+              <div style="display:flex;align-items:baseline;gap:10px;margin:6px 0 4px;">
+                <div style="font-family:'Bricolage Grotesque',sans-serif;font-size:58px;font-weight:800;line-height:1;color:#3A3227;">{{ totalScore }}</div>
+                <div style="font-size:14px;color:#8A7D6B;">out of 1,200</div>
+              </div>
+              <sc-if value="{{ isStale }}" hint-placeholder-val="{{ false }}">
+                <div style="background:#FBF3E2;border:1px solid #EAD9AC;border-radius:12px;padding:10px 14px;font-size:13px;color:#7A683F;margin:12px 0;">Your answers changed since this score. <button onClick="{{ onCalculate }}" style="background:none;border:none;color:#A8552E;font-weight:700;cursor:pointer;font-family:inherit;font-size:13px;padding:0;text-decoration:underline;">Recalculate</button></div>
+              </sc-if>
+              <div style="display:flex;flex-direction:column;gap:12px;margin:18px 0 22px;">
+                <sc-for list="{{ breakdown }}" as="p" hint-placeholder-count="4">
+                  <div>
+                    <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px;">
+                      <span style="color:#6E6250;font-weight:600;">{{ p.label }}</span>
+                      <span style="font-weight:700;color:#3A3227;">{{ p.ptsLabel }}</span>
+                    </div>
+                    <div style="height:8px;background:#F1E9DC;border-radius:999px;overflow:hidden;"><div style="{{ p.barStyle }}"></div></div>
+                  </div>
+                </sc-for>
+              </div>
+              <div style="border-top:1px solid #ECE3D4;padding-top:18px;">
+                <div style="font-size:14px;font-weight:700;color:#4A4234;margin-bottom:8px;">Save this scenario</div>
+                <input value="{{ saveName }}" onChange="{{ onSaveName }}" placeholder="e.g. Current profile" style="width:100%;padding:10px 12px;border-radius:12px;border:1.5px solid #E7DECE;font-size:14px;font-family:inherit;color:#3A3227;margin-bottom:10px;">
+                <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                  <button onClick="{{ onSave }}" style="flex:1;background:#C2683C;color:#fff;border:none;border-radius:999px;padding:11px 18px;font-weight:700;font-size:14px;font-family:inherit;cursor:pointer;" style-hover="background:#A8552E">{{ saveLabel }}</button>
+                  <sc-if value="{{ showSaveAsNew }}" hint-placeholder-val="{{ false }}">
+                    <button onClick="{{ onSaveAsNew }}" style="background:#fff;color:#A8552E;border:1.5px solid #C2683C;border-radius:999px;padding:11px 16px;font-weight:700;font-size:13px;font-family:inherit;cursor:pointer;" style-hover="background:#F8E7D9">Save as new</button>
+                  </sc-if>
+                </div>
+                <div style="font-size:12px;color:#8A7D6B;margin-top:10px;line-height:1.5;">Saved to this browser on this device only. Clearing browser data removes saved scenarios.</div>
+              </div>
+            </div>
+          </sc-if>
+          <sc-if value="{{ noResult }}" hint-placeholder-val="{{ true }}">
+            <div>
+              <div style="font-family:'Bricolage Grotesque',sans-serif;font-size:20px;font-weight:700;margin-bottom:6px;">Your score</div>
+              <div style="font-size:13.5px;color:#8A7D6B;margin-bottom:18px;line-height:1.5;">Answer every section, then calculate. You'll get a full breakdown of where your points come from.</div>
+              <div style="display:flex;flex-direction:column;gap:9px;margin-bottom:18px;">
+                <sc-for list="{{ sections }}" as="s" hint-placeholder-count="5">
+                  <div style="display:flex;align-items:center;gap:10px;">
+                    <div style="{{ s.dotStyle }}">{{ s.mark }}</div>
+                    <div style="{{ s.txtStyle }}">{{ s.name }}</div>
+                  </div>
+                </sc-for>
+              </div>
+              <div style="font-size:13px;font-weight:600;color:{{ missingColor }};margin-bottom:12px;">{{ missingLabel }}</div>
+            </div>
+          </sc-if>
+          <button onClick="{{ onCalculate }}" disabled="{{ calcDisabled }}" style="{{ calcStyle }}" style-hover="background:#A8552E">Calculate my score</button>
+        </div>
+      </div>
+    </div>
+  </main>
+  </sc-if>
+
+  <sc-if value="{{ isScenarios }}" hint-placeholder-val="{{ false }}">
+  <main data-screen-label="My scenarios" style="max-width:1120px;width:100%;margin:0 auto;padding:8px 20px 40px;flex:1;">
+    <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:22px;">
+      <h1 style="font-family:'Bricolage Grotesque',sans-serif;font-size:26px;font-weight:800;margin:0;flex:1;">My scenarios</h1>
+      <button onClick="{{ onNewScenario }}" style="background:#C2683C;color:#fff;border:none;border-radius:999px;padding:10px 20px;font-weight:700;font-size:13.5px;font-family:inherit;cursor:pointer;" style-hover="background:#A8552E">+ New scenario</button>
+      <sc-if value="{{ hasScenarios }}" hint-placeholder-val="{{ false }}">
+        <button onClick="{{ onClearOpen }}" style="background:none;border:1.5px solid #E7DECE;color:#8A7D6B;border-radius:999px;padding:10px 18px;font-weight:600;font-size:13.5px;font-family:inherit;cursor:pointer;" style-hover="border-color:#C05B4D;color:#C05B4D">Clear all</button>
+      </sc-if>
+    </div>
+    <sc-if value="{{ clearOpen }}" hint-placeholder-val="{{ false }}">
+      <div style="background:#FDF1EE;border:1px solid #EBC7BF;border-radius:16px;padding:18px 20px;margin-bottom:20px;">
+        <div style="font-weight:700;color:#A34335;margin-bottom:6px;">Delete all saved scenarios?</div>
+        <div style="font-size:13.5px;color:#8A6258;margin-bottom:12px;">This can't be undone. Type <strong>delete</strong> to confirm.</div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <input value="{{ clearText }}" onChange="{{ onClearText }}" placeholder="Type delete" style="padding:9px 12px;border-radius:12px;border:1.5px solid #EBC7BF;font-size:14px;font-family:inherit;">
+          <button onClick="{{ onClearConfirm }}" disabled="{{ clearDisabled }}" style="{{ clearStyle }}">Delete everything</button>
+          <button onClick="{{ onClearCancel }}" style="background:none;border:none;color:#8A7D6B;font-weight:600;font-size:13.5px;font-family:inherit;cursor:pointer;">Cancel</button>
+        </div>
+      </div>
+    </sc-if>
+    <sc-if value="{{ noScenarios }}" hint-placeholder-val="{{ true }}">
+      <div style="background:#fff;border:1.5px dashed #E7DECE;border-radius:20px;padding:56px 30px;text-align:center;">
+        <div style="width:52px;height:52px;border-radius:18px;background:#F8E7D9;margin:0 auto 16px;display:flex;align-items:center;justify-content:center;font-family:'Bricolage Grotesque',sans-serif;font-weight:800;color:#A8552E;font-size:20px;">?</div>
+        <div style="font-family:'Bricolage Grotesque',sans-serif;font-size:20px;font-weight:700;margin-bottom:8px;">Nothing saved yet</div>
+        <div style="font-size:14px;color:#8A7D6B;max-width:380px;margin:0 auto 20px;line-height:1.6;">Calculate a score, save it with a name, and it will be waiting here next time — no retyping.</div>
+        <button onClick="{{ goCalc }}" style="background:#C2683C;color:#fff;border:none;border-radius:999px;padding:12px 24px;font-weight:700;font-size:14px;font-family:inherit;cursor:pointer;" style-hover="background:#A8552E">Go to the calculator</button>
+      </div>
+    </sc-if>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:16px;">
+      <sc-for list="{{ scenList }}" as="s" hint-placeholder-count="2">
+        <div style="background:#fff;border:1px solid #ECE3D4;border-radius:20px;padding:22px;box-shadow:0 1px 2px rgba(60,45,25,0.04);display:flex;flex-direction:column;gap:12px;">
+          <div style="display:flex;align-items:flex-start;gap:10px;">
+            <button onClick="{{ s.onToggle }}" aria-label="Select for comparison" style="{{ s.checkStyle }}">{{ s.checkMark }}</button>
+            <div style="flex:1;min-width:0;">
+              <sc-if value="{{ s.isEditing }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex;gap:6px;">
+                  <input value="{{ s.nameValue }}" onChange="{{ s.onNameChange }}" onKeyDown="{{ s.onNameKey }}" style="flex:1;min-width:0;padding:7px 10px;border-radius:10px;border:1.5px solid #C2683C;font-size:14px;font-family:inherit;font-weight:600;">
+                  <button onClick="{{ s.onNameSave }}" style="background:#C2683C;color:#fff;border:none;border-radius:10px;padding:0 12px;font-weight:700;cursor:pointer;font-family:inherit;font-size:13px;">✓</button>
+                </div>
+              </sc-if>
+              <sc-if value="{{ s.notEditing }}" hint-placeholder-val="{{ true }}">
+                <div style="display:flex;align-items:center;gap:8px;">
+                  <div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:16.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ s.name }}</div>
+                  <button onClick="{{ s.onStartEdit }}" aria-label="Rename" style="background:none;border:none;cursor:pointer;color:#B7AB99;font-size:13px;padding:2px;" style-hover="color:#A8552E">✎</button>
+                </div>
+              </sc-if>
+              <div style="font-size:12px;color:#8A7D6B;margin-top:2px;">{{ s.dateLabel }}</div>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:26px;line-height:1;color:#3A3227;">{{ s.score }}</div>
+              <div style="font-size:10.5px;color:#8A7D6B;">/ 1,200</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;font-size:11.5px;color:#8A7D6B;flex-wrap:wrap;">
+            <span style="background:#F5EFE5;border-radius:999px;padding:3px 9px;">Core {{ s.core }}</span>
+            <span style="background:#F5EFE5;border-radius:999px;padding:3px 9px;">Transfer {{ s.transfer }}</span>
+            <span style="background:#F5EFE5;border-radius:999px;padding:3px 9px;">Extra {{ s.additional }}</span>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:2px;">
+            <button onClick="{{ s.onLoad }}" style="flex:1;background:#fff;border:1.5px solid #C2683C;color:#A8552E;border-radius:999px;padding:8px 14px;font-weight:700;font-size:13px;font-family:inherit;cursor:pointer;" style-hover="background:#F8E7D9">Open &amp; edit</button>
+            <button onClick="{{ s.onDelete }}" style="{{ s.deleteStyle }}">{{ s.deleteLabel }}</button>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+    <sc-if value="{{ compareReady }}" hint-placeholder-val="{{ false }}">
+      <div style="position:sticky;bottom:16px;margin-top:24px;display:flex;justify-content:center;">
+        <button onClick="{{ goComp }}" style="background:#3A3227;color:#fff;border:none;border-radius:999px;padding:14px 28px;font-weight:700;font-size:14.5px;font-family:inherit;cursor:pointer;box-shadow:0 8px 24px rgba(40,30,15,0.25);" style-hover="background:#57493A">Compare {{ selectedCount }} scenarios →</button>
+      </div>
+    </sc-if>
+  </main>
+  </sc-if>
+
+  <sc-if value="{{ isCompare }}" hint-placeholder-val="{{ false }}">
+  <main data-screen-label="Compare" style="max-width:1120px;width:100%;margin:0 auto;padding:8px 20px 40px;flex:1;">
+    <h1 style="font-family:'Bricolage Grotesque',sans-serif;font-size:26px;font-weight:800;margin:0 0 6px;">Compare scenarios</h1>
+    <sc-if value="{{ notEnough }}" hint-placeholder-val="{{ true }}">
+      <div style="font-size:14px;color:#8A7D6B;margin-bottom:20px;">Pick at least two saved scenarios to see them side by side.</div>
+      <sc-if value="{{ noScenarios }}" hint-placeholder-val="{{ true }}">
+        <div style="background:#fff;border:1.5px dashed #E7DECE;border-radius:20px;padding:48px 30px;text-align:center;">
+          <div style="font-family:'Bricolage Grotesque',sans-serif;font-size:19px;font-weight:700;margin-bottom:8px;">No scenarios to compare yet</div>
+          <div style="font-size:14px;color:#8A7D6B;margin-bottom:20px;">Save at least two scenarios first.</div>
+          <button onClick="{{ goCalc }}" style="background:#C2683C;color:#fff;border:none;border-radius:999px;padding:12px 24px;font-weight:700;font-size:14px;font-family:inherit;cursor:pointer;" style-hover="background:#A8552E">Go to the calculator</button>
+        </div>
+      </sc-if>
+      <div style="display:flex;flex-direction:column;gap:10px;max-width:520px;">
+        <sc-for list="{{ pickList }}" as="p" hint-placeholder-count="2">
+          <button onClick="{{ p.onToggle }}" style="{{ p.style }}">
+            <span style="{{ p.checkStyle }}">{{ p.checkMark }}</span>
+            <span style="flex:1;text-align:left;font-weight:700;">{{ p.name }}</span>
+            <span style="font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:18px;">{{ p.score }}</span>
+          </button>
+        </sc-for>
+      </div>
+    </sc-if>
+    <sc-if value="{{ enough }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:18px;">
+        <div style="font-size:14px;color:#8A7D6B;">Differences between scenarios are <span style="background:#FBF0DE;border-radius:6px;padding:2px 8px;color:#6E6250;font-weight:600;">highlighted</span>. Deltas are vs. the baseline:</div>
+        <select value="{{ baselineValue }}" onChange="{{ onBaseline }}" style="padding:8px 12px;border-radius:12px;border:1.5px solid #E7DECE;background:#fff;font-size:13.5px;font-family:inherit;color:#3A3227;font-weight:600;">
+          <sc-for list="{{ baselineOptions }}" as="o"><option value="{{ o.v }}">{{ o.label }}</option></sc-for>
+        </select>
+        <button onClick="{{ goScen }}" style="margin-left:auto;background:none;border:1.5px solid #E7DECE;color:#6E6250;border-radius:999px;padding:8px 16px;font-weight:600;font-size:13px;font-family:inherit;cursor:pointer;" style-hover="border-color:#C2683C;color:#A8552E">Change selection</button>
+      </div>
+      <div style="overflow-x:auto;background:#fff;border:1px solid #ECE3D4;border-radius:20px;box-shadow:0 1px 2px rgba(60,45,25,0.04);">
+        <div style="min-width:620px;">
+          <div style="{{ headRowStyle }}">
+            <div style="padding:18px 16px;font-size:12px;font-weight:700;color:#8A7D6B;text-transform:uppercase;letter-spacing:0.07em;">Scenario</div>
+            <sc-for list="{{ compareHead }}" as="h" hint-placeholder-count="2">
+              <div style="padding:18px 14px;border-left:1px solid #F0E8DA;">
+                <div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:15px;margin-bottom:4px;">{{ h.name }}</div>
+                <div style="display:flex;align-items:baseline;gap:8px;">
+                  <span style="font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:26px;">{{ h.score }}</span>
+                  <span style="{{ h.tagStyle }}">{{ h.tag }}</span>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+          <sc-for list="{{ compareRows }}" as="row" hint-placeholder-count="8">
+            <div style="{{ row.style }}">
+              <div style="{{ row.labelStyle }}">{{ row.label }}</div>
+              <sc-for list="{{ row.cells }}" as="c">
+                <div style="{{ c.style }}">{{ c.text }}<span style="{{ c.subStyle }}">{{ c.sub }}</span></div>
+              </sc-for>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+  </main>
+  </sc-if>
+
+  <footer style="border-top:1px solid #ECE3D4;background:#F5EFE5;padding:36px 20px;margin-top:auto;">
+    <div style="max-width:1120px;margin:0 auto;display:flex;flex-wrap:wrap;gap:32px;">
+      <div style="flex:2 1 420px;font-size:12.5px;color:#8A7D6B;line-height:1.7;">
+        <div style="font-weight:700;color:#6E6250;margin-bottom:6px;">Disclaimer</div>
+        This calculator is provided for informational purposes only and is not immigration advice. We make our best effort to keep it accurate and current, but we don't guarantee it matches the official Government of Canada calculation, and we accept no liability for any loss or damage arising from its use. Always confirm your score using the official IRCC tools before making decisions.
+      </div>
+      <div style="flex:1 1 240px;font-size:12.5px;color:#8A7D6B;line-height:1.8;">
+        <div style="font-weight:700;color:#6E6250;margin-bottom:6px;">About this tool</div>
+        <div>Scoring rules last verified <strong>July 23, 2026</strong></div>
+        <div>Your data never leaves this browser.</div>
+        <div style="margin-top:10px;"><a href="{{ donateUrl }}" target="_blank" rel="noopener" onClick="{{ onDonate }}" style="font-weight:700;">♥ Support this tool with a donation</a></div>
+      </div>
+    </div>
+  </footer>
+
+  <sc-if value="{{ toastOn }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#3A3227;color:#FAF6F0;border-radius:999px;padding:11px 22px;font-size:13.5px;font-weight:600;box-shadow:0 8px 24px rgba(40,30,15,0.3);z-index:50;animation:fadeUp .25s ease;pointer-events:none;">{{ toastMsg }}</div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;sampleData&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Demo&quot;},&quot;liveScoring&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Behavior&quot;},&quot;donateUrl&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;https://ko-fi.com/&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Links&quot;}}">
+class Component extends DCLogic {
+  state = {
+    view: 'calc', form: Component.blankForm(), result: null, currentId: null, saveName: '',
+    scenarios: [], compareSel: [], baseline: null, confirmDelete: null,
+    editName: null, editNameVal: '', clearOpen: false, clearText: '',
+    toast: '', bannerDismissed: false, calculatedOnce: false
+  };
+
+  static blankForm() {
+    return { hasSpouse: null, spousePR: null, spouseAcc: null, age: '', education: '', eduCanada: null, eduLen: null,
+      cdnWork: null, foreignWork: null, trade: null, l1Test: 'ielts', l1: { s: '', l: '', r: '', w: '' },
+      l2Test: null, l2: { s: '', l: '', r: '', w: '' }, spEdu: '', spWork: null, spTest: 'ielts',
+      sp: { s: '', l: '', r: '', w: '' }, pn: null, sibling: null };
+  }
+
+  static EDU = [
+    { v: 'less', label: 'Less than high school' }, { v: 'secondary', label: 'High school diploma' },
+    { v: 'one_year', label: 'One-year credential' }, { v: 'two_year', label: 'Two-year credential' },
+    { v: 'bachelors', label: "Bachelor's degree (3+ years)" }, { v: 'two_plus', label: 'Two or more credentials (one 3+ yrs)' },
+    { v: 'masters', label: "Master's or professional degree" }, { v: 'phd', label: 'Doctoral degree (PhD)' }
+  ];
+  // Approximate point tables, modeled on the official CRS tables (flow doc §6). [without spouse, with spouse]
+  static EDU_PTS = { less: [0, 0], secondary: [30, 28], one_year: [90, 84], two_year: [98, 91], bachelors: [120, 112], two_plus: [128, 119], masters: [135, 126], phd: [150, 140] };
+  static SP_EDU_PTS = { less: 0, secondary: 2, one_year: 6, two_year: 7, bachelors: 8, two_plus: 9, masters: 10, phd: 10 };
+  static CDN_WORK = [[0, 0], [40, 35], [53, 46], [64, 56], [72, 63], [80, 70]];
+  static SP_WORK = [0, 5, 7, 8, 9, 10];
+  static TESTS = [
+    { v: 'celpip', label: 'CELPIP-G' }, { v: 'ielts', label: 'IELTS General Training' },
+    { v: 'pte', label: 'PTE Core' }, { v: 'tef_canada', label: 'TEF Canada (French)' },
+    { v: 'tcf', label: 'TCF Canada (French)' }
+  ];
+  static TESTNAME = { celpip: 'CELPIP-G', ielts: 'IELTS', pte: 'PTE Core', tef_canada: 'TEF Canada', tcf: 'TCF Canada' };
+  static BANDS = {
+    celpip: {
+      s: [['10 – 12', 10], ['9', 9], ['8', 8], ['7', 7], ['6', 6], ['5', 5], ['4', 4], ['3 or less', 0]],
+      l: [['10 – 12', 10], ['9', 9], ['8', 8], ['7', 7], ['6', 6], ['5', 5], ['4', 4], ['3 or less', 0]],
+      r: [['10 – 12', 10], ['9', 9], ['8', 8], ['7', 7], ['6', 6], ['5', 5], ['4', 4], ['3 or less', 0]],
+      w: [['10 – 12', 10], ['9', 9], ['8', 8], ['7', 7], ['6', 6], ['5', 5], ['4', 4], ['3 or less', 0]]
+    },
+    pte: {
+      s: [['89 – 90', 10], ['84 – 88', 9], ['76 – 83', 8], ['68 – 75', 7], ['59 – 67', 6], ['51 – 58', 5], ['42 – 50', 4], ['Below 42', 0]],
+      l: [['89 – 90', 10], ['82 – 88', 9], ['71 – 81', 8], ['60 – 70', 7], ['50 – 59', 6], ['39 – 49', 5], ['28 – 38', 4], ['Below 28', 0]],
+      r: [['88 – 90', 10], ['78 – 87', 9], ['69 – 77', 8], ['60 – 68', 7], ['51 – 59', 6], ['42 – 50', 5], ['33 – 41', 4], ['Below 33', 0]],
+      w: [['90', 10], ['88 – 89', 9], ['79 – 87', 8], ['69 – 78', 7], ['60 – 68', 6], ['51 – 59', 5], ['41 – 50', 4], ['Below 41', 0]]
+    },
+    ielts: {
+      s: [['7.5 – 9.0', 10], ['7.0', 9], ['6.5', 8], ['6.0', 7], ['5.5', 6], ['5.0', 5], ['4.0 – 4.5', 4], ['Below 4.0', 0]],
+      l: [['8.5 – 9.0', 10], ['8.0', 9], ['7.5', 8], ['6.0 – 7.0', 7], ['5.5', 6], ['5.0', 5], ['4.5', 4], ['Below 4.5', 0]],
+      r: [['8.0 – 9.0', 10], ['7.0 – 7.5', 9], ['6.5', 8], ['6.0', 7], ['5.0 – 5.5', 6], ['4.0 – 4.5', 5], ['3.5', 4], ['Below 3.5', 0]],
+      w: [['7.5 – 9.0', 10], ['7.0', 9], ['6.5', 8], ['6.0', 7], ['5.5', 6], ['5.0', 5], ['4.0 – 4.5', 4], ['Below 4.0', 0]]
+    },
+    tef_canada: {
+      s: [['393 – 450', 10], ['371 – 392', 9], ['349 – 370', 8], ['310 – 348', 7], ['271 – 309', 6], ['226 – 270', 5], ['181 – 225', 4], ['Below 181', 0]],
+      l: [['316 – 360', 10], ['298 – 315', 9], ['280 – 297', 8], ['249 – 279', 7], ['217 – 248', 6], ['181 – 216', 5], ['145 – 180', 4], ['Below 145', 0]],
+      r: [['263 – 300', 10], ['248 – 262', 9], ['233 – 247', 8], ['207 – 232', 7], ['181 – 206', 6], ['151 – 180', 5], ['121 – 150', 4], ['Below 121', 0]],
+      w: [['393 – 450', 10], ['371 – 392', 9], ['349 – 370', 8], ['310 – 348', 7], ['271 – 309', 6], ['226 – 270', 5], ['181 – 225', 4], ['Below 181', 0]]
+    },
+    tcf: {
+      s: [['16 – 20', 10], ['14 – 15', 9], ['12 – 13', 8], ['10 – 11', 7], ['7 – 9', 6], ['6', 5], ['4 – 5', 4], ['Below 4', 0]],
+      l: [['549 – 699', 10], ['523 – 548', 9], ['503 – 522', 8], ['458 – 502', 7], ['398 – 457', 6], ['369 – 397', 5], ['331 – 368', 4], ['Below 331', 0]],
+      r: [['549 – 699', 10], ['524 – 548', 9], ['499 – 523', 8], ['453 – 498', 7], ['406 – 452', 6], ['375 – 405', 5], ['342 – 374', 4], ['Below 342', 0]],
+      w: [['16 – 20', 10], ['14 – 15', 9], ['12 – 13', 8], ['10 – 11', 7], ['7 – 9', 6], ['6', 5], ['4 – 5', 4], ['Below 4', 0]]
+    }
+  };
+  static SKILLS = [['s', 'Speaking'], ['l', 'Listening'], ['r', 'Reading'], ['w', 'Writing']];
+
+  bandsFor(test) { return Component.BANDS[test] || Component.BANDS.ielts; }
+  clbOf(test, skill, label) { const b = this.bandsFor(test)[skill].find(x => x[0] === label); return b ? b[1] : 0; }
+  clbs(test, group) { return Component.SKILLS.map(([k]) => this.clbOf(test, k, group[k])); }
+  affects(f) { return f.hasSpouse === true && f.spousePR === false && f.spouseAcc === true; }
+  isFrench(test) { return test === 'tef_canada' || test === 'tcf'; }
+
+  agePts(age, w) {
+    const a = parseInt(age, 10);
+    if (!a || a <= 17 || a >= 45) return 0;
+    if (a >= 20 && a <= 29) return w ? 100 : 110;
+    const t = { 18: [99, 90], 19: [105, 95], 30: [105, 95], 31: [99, 90], 32: [94, 85], 33: [88, 80], 34: [83, 75], 35: [77, 70], 36: [72, 65], 37: [66, 60], 38: [61, 55], 39: [55, 50], 40: [50, 45], 41: [39, 35], 42: [28, 25], 43: [17, 15], 44: [6, 5] };
+    return t[a] ? t[a][w ? 1 : 0] : 0;
+  }
+  l1Ability(clb, w) {
+    if (clb >= 10) return w ? 32 : 34; if (clb === 9) return w ? 29 : 31; if (clb === 8) return w ? 22 : 23;
+    if (clb === 7) return w ? 16 : 17; if (clb === 6) return w ? 8 : 9; if (clb >= 4) return 6; return 0;
+  }
+  compute(f) {
+    const w = this.affects(f);
+    const l1c = this.clbs(f.l1Test, f.l1);
+    const minL1 = Math.min(...l1c);
+    const age = this.agePts(f.age, w);
+    const edu = (Component.EDU_PTS[f.education] || [0, 0])[w ? 1 : 0];
+    const l1 = l1c.reduce((s, c) => s + this.l1Ability(c, w), 0);
+    let l2 = 0;
+    if (f.l2Test && f.l2Test !== 'none') {
+      l2 = this.clbs(f.l2Test, f.l2).reduce((s, c) => s + (c >= 9 ? 6 : c >= 7 ? 3 : c >= 5 ? 1 : 0), 0);
+      l2 = Math.min(l2, w ? 22 : 24);
+    }
+    const cdn = Component.CDN_WORK[Math.min(f.cdnWork || 0, 5)][w ? 1 : 0];
+    const core = age + edu + l1 + l2 + cdn;
+    let spousePts = 0;
+    if (w) {
+      spousePts += Component.SP_EDU_PTS[f.spEdu] || 0;
+      spousePts += Math.min(this.clbs(f.spTest, f.sp).reduce((s, c) => s + (c >= 9 ? 5 : c >= 7 ? 3 : c >= 5 ? 1 : 0), 0), 20);
+      spousePts += Component.SP_WORK[Math.min(f.spWork || 0, 5)];
+    }
+    const oneCred = ['one_year', 'two_year', 'bachelors'].includes(f.education);
+    const twoCred = ['two_plus', 'masters', 'phd'].includes(f.education);
+    const eduLang = minL1 >= 9 ? (twoCred ? 50 : oneCred ? 25 : 0) : minL1 >= 7 ? (twoCred ? 25 : oneCred ? 13 : 0) : 0;
+    const eduWork = f.cdnWork >= 2 ? (twoCred ? 50 : oneCred ? 25 : 0) : f.cdnWork >= 1 ? (twoCred ? 25 : oneCred ? 13 : 0) : 0;
+    const fwLang = f.foreignWork >= 3 ? (minL1 >= 9 ? 50 : minL1 >= 7 ? 25 : 0) : f.foreignWork >= 1 ? (minL1 >= 9 ? 25 : minL1 >= 7 ? 13 : 0) : 0;
+    const fwCdn = f.foreignWork >= 3 ? (f.cdnWork >= 2 ? 50 : f.cdnWork >= 1 ? 25 : 0) : f.foreignWork >= 1 ? (f.cdnWork >= 2 ? 25 : f.cdnWork >= 1 ? 13 : 0) : 0;
+    const cert = f.trade ? (minL1 >= 7 ? 50 : minL1 >= 5 ? 25 : 0) : 0;
+    const transfer = Math.min(Math.min(eduLang + eduWork, 50) + Math.min(fwLang + fwCdn, 50) + Math.min(cert, 50), 100);
+    let additional = 0;
+    if (f.pn) additional += 600;
+    if (f.sibling) additional += 15;
+    additional += this.studyBonus(f);
+    additional += this.frenchBonus(f);
+    additional = Math.min(additional, 600);
+    const total = Math.min(core + spousePts + transfer + additional, 1200);
+    return { total, core, spousePts, transfer, additional };
+  }
+  studyBonus(f) { return f.eduCanada ? (f.eduLen === 'one_two' ? 15 : f.eduLen === 'three_plus' ? 30 : 0) : 0; }
+  frenchBonus(f) {
+    let fr = null, en = null;
+    if (this.isFrench(f.l1Test)) fr = this.clbs(f.l1Test, f.l1);
+    else { en = this.clbs(f.l1Test, f.l1); if (f.l2Test && f.l2Test !== 'none') fr = this.clbs(f.l2Test, f.l2); }
+    if (!fr || Math.min(...fr) < 7) return 0;
+    return en && Math.min(...en) >= 5 ? 50 : 25;
+  }
+
+  missing(f) {
+    const m = [];
+    if (f.hasSpouse == null) m.push('Spouse or partner');
+    if (f.hasSpouse) {
+      if (f.spousePR == null) m.push('Partner PR/citizen status');
+      else if (f.spousePR === false && f.spouseAcc == null) m.push('Is your partner coming?');
+    }
+    if (!f.age) m.push('Age');
+    if (!f.education) m.push('Education level');
+    if (f.eduCanada == null) m.push('Education in Canada');
+    else if (f.eduCanada && !f.eduLen) m.push('Canadian credential length');
+    if (f.cdnWork == null) m.push('Canadian work experience');
+    if (f.foreignWork == null) m.push('Foreign work experience');
+    if (f.trade == null) m.push('Trade certificate');
+    if (Component.SKILLS.some(([k]) => !f.l1[k])) m.push('First-language score bands');
+    if (f.l2Test == null) m.push('Second language (or "not applicable")');
+    else if (f.l2Test !== 'none' && Component.SKILLS.some(([k]) => !f.l2[k])) m.push('French score bands');
+    if (this.affects(f)) {
+      if (!f.spEdu) m.push("Partner's education");
+      if (f.spWork == null) m.push("Partner's Canadian work");
+      if (Component.SKILLS.some(([k]) => !f.sp[k])) m.push("Partner's score bands");
+    }
+    if (f.pn == null) m.push('Provincial nomination');
+    if (f.sibling == null) m.push('Sibling in Canada');
+    return m;
+  }
+  sectionsDone(f) {
+    const bandDone = (g) => Component.SKILLS.every(([k]) => g[k]);
+    const list = [
+      { name: 'Your family situation', done: f.hasSpouse === false || (f.hasSpouse === true && (f.spousePR === true || (f.spousePR === false && f.spouseAcc != null))) },
+      { name: 'About you', done: !!f.age && !!f.education && (f.eduCanada === false || (f.eduCanada === true && !!f.eduLen)) },
+      { name: 'Work experience', done: f.cdnWork != null && f.foreignWork != null && f.trade != null },
+      { name: 'Language', done: bandDone(f.l1) && (f.l2Test === 'none' || (!!f.l2Test && bandDone(f.l2))) }
+    ];
+    if (this.affects(f)) list.push({ name: 'Your partner', done: !!f.spEdu && f.spWork != null && bandDone(f.sp) });
+    list.push({ name: 'Extra points', done: f.pn != null && f.sibling != null });
+    return list;
+  }
+
+  listAll() {
+    if (this.state.scenarios.length) return this.state.scenarios;
+    if (this.props.sampleData) { if (!this._samples) this._samples = this.samples(); return this._samples; }
+    return [];
+  }
+  samples() {
+    const mk = (name, patch, daysAgo) => {
+      const f = { ...Component.blankForm(), ...patch };
+      const now = Date.now() - daysAgo * 86400000;
+      return { id: 'sample-' + name.replace(/\W/g, ''), name, createdAt: now, updatedAt: now, inputs: f, result: this.compute(f) };
+    };
+    const base = { hasSpouse: false, age: '30', education: 'bachelors', eduCanada: false, cdnWork: 0, foreignWork: 3, trade: false, l1Test: 'ielts', l1: { s: '7.0', l: '8.0', r: '7.0 – 7.5', w: '7.0' }, l2Test: 'none', pn: false, sibling: false };
+    return [
+      mk('Current profile', base, 12),
+      mk('Retake IELTS (CLB 10)', { ...base, l1: { s: '7.5 – 9.0', l: '8.5 – 9.0', r: '8.0 – 9.0', w: '7.5 – 9.0' } }, 5),
+      mk("Finish Master's", { ...base, education: 'masters', age: '32' }, 1)
+    ];
+  }
+  persist(list) { try { localStorage.setItem('crsPlannerScenarios', JSON.stringify(list)); } catch (e) {} }
+  componentDidMount() {
+    try {
+      const raw = localStorage.getItem('crsPlannerScenarios');
+      if (raw) { const list = JSON.parse(raw); if (Array.isArray(list) && list.length) this.setState({ scenarios: list }); }
+    } catch (e) {}
+  }
+
+  sf(patch) {
+    const form = { ...this.state.form, ...patch };
+    const st = { form };
+    if (this.state.result) st.result = { ...this.state.result, stale: true };
+    if (this.props.liveScoring && this.missing(form).length === 0) { st.result = { ...this.compute(form), stale: false }; st.calculatedOnce = true; }
+    this.setState(st);
+  }
+  sfBand(group, k, v) { this.sf({ [group]: { ...this.state.form[group], [k]: v } }); }
+  showToast(msg) { clearTimeout(this._tt); this.setState({ toast: msg }); this._tt = setTimeout(() => this.setState({ toast: '' }), 2600); }
+
+  pill(sel, dis) {
+    return { padding: '9px 16px', borderRadius: '999px', border: '1.5px solid ' + (sel ? '#C2683C' : '#E7DECE'),
+      background: sel ? '#F8E7D9' : '#fff', color: dis ? '#C4B9A7' : (sel ? '#8A431F' : '#5C5142'),
+      fontFamily: 'inherit', fontSize: '14px', fontWeight: 600, cursor: dis ? 'not-allowed' : 'pointer', transition: 'border-color .15s, background .15s' };
+  }
+  mkSeg(opts, cur, fn) {
+    return opts.map(o => ({ label: o.label,
+      onClick: o.disabled ? () => this.showToast("Those score bands aren't captured yet — coming soon") : () => fn(o.v),
+      style: this.pill(cur === o.v, o.disabled) }));
+  }
+  mkBands(test, group, groupKey) {
+    return Component.SKILLS.map(([k, label]) => ({
+      label, value: group[k], onChange: (e) => this.sfBand(groupKey, k, e.target.value),
+      options: this.bandsFor(test)[k].map(x => x[0])
+    }));
+  }
+  tab(active) {
+    return { border: 'none', background: active ? '#fff' : 'transparent', color: active ? '#3A3227' : '#8A7D6B',
+      borderRadius: '999px', padding: '8px 16px', fontWeight: 700, fontSize: '13.5px', fontFamily: 'inherit',
+      cursor: 'pointer', boxShadow: active ? '0 1px 4px rgba(60,45,25,0.12)' : 'none', display: 'flex', alignItems: 'center' };
+  }
+  fmtDate(t) { return new Date(t).toLocaleDateString('en-CA', { month: 'short', day: 'numeric', year: 'numeric' }); }
+  fmtYears(n, max) { if (n == null) return ''; const s = n >= max ? n + '+' : '' + n; return s + (n === 1 ? ' year' : ' years'); }
+  eduLabel(v) { const e = Component.EDU.find(x => x.v === v); return e ? e.label : ''; }
+  langSummary(test, g) { return Component.TESTNAME[test] + ' · S ' + g.s + ' · L ' + g.l + ' · R ' + g.r + ' · W ' + g.w; }
+  delta(v, base) {
+    const d = v - base;
+    return { text: d === 0 ? '±0' : d > 0 ? '+' + d : '−' + Math.abs(d), color: d === 0 ? '#B7AB99' : d > 0 ? '#3E8E5F' : '#C05B4D' };
+  }
+
+  calculate() {
+    const f = this.state.form;
+    const m = this.missing(f);
+    if (m.length) { this.showToast('Still needed: ' + m[0] + (m.length > 1 ? ' +' + (m.length - 1) + ' more' : '')); return; }
+    this.setState({ result: { ...this.compute(f), stale: false }, calculatedOnce: true });
+  }
+  save(asNew) {
+    const f = this.state.form;
+    if (this.missing(f).length) { this.showToast('Fill in every section before saving'); return; }
+    const res = this.compute(f);
+    const list = [...this.listAll()];
+    let id = asNew ? null : this.state.currentId;
+    const now = Date.now();
+    const name = (this.state.saveName || '').trim() || 'Scenario ' + (list.length + 1);
+    const existing = id && list.find(s => s.id === id);
+    if (existing) {
+      const i = list.indexOf(existing);
+      list[i] = { ...existing, name, updatedAt: now, inputs: JSON.parse(JSON.stringify(f)), result: res };
+    } else {
+      id = 's' + now + Math.random().toString(36).slice(2, 6);
+      list.push({ id, name, createdAt: now, updatedAt: now, inputs: JSON.parse(JSON.stringify(f)), result: res });
+    }
+    this.setState({ scenarios: list, currentId: id, saveName: name, result: { ...res, stale: false }, calculatedOnce: true });
+    this.persist(list);
+    this.showToast((existing ? 'Updated' : 'Saved') + ' “' + name + '”');
+  }
+  load(s) {
+    this.setState({ form: JSON.parse(JSON.stringify(s.inputs)), result: { ...s.result, stale: false },
+      currentId: s.id, saveName: s.name, view: 'calc', calculatedOnce: true, confirmDelete: null });
+  }
+  del(id) {
+    if (this.state.confirmDelete !== id) { this.setState({ confirmDelete: id }); return; }
+    const list = this.listAll().filter(s => s.id !== id);
+    const sel = this.state.compareSel.filter(x => x !== id);
+    this.setState({ scenarios: list, compareSel: sel, confirmDelete: null, currentId: this.state.currentId === id ? null : this.state.currentId });
+    this.persist(list);
+    this.showToast('Scenario deleted');
+  }
+  toggleSel(id) {
+    const sel = this.state.compareSel.includes(id) ? this.state.compareSel.filter(x => x !== id) : [...this.state.compareSel, id];
+    this.setState({ compareSel: sel });
+  }
+
+  renderVals() {
+    const st = this.state, f = st.form;
+    const yn = [{ v: true, label: 'Yes' }, { v: false, label: 'No' }];
+    const scenarios = this.listAll();
+    const affects = this.affects(f);
+    const miss = this.missing(f);
+    const canCalc = miss.length === 0;
+    const sel = st.compareSel.map(id => scenarios.find(s => s.id === id)).filter(Boolean);
+    const enough = sel.length >= 2;
+    const baseId = sel.length && sel.some(s => s.id === st.baseline) ? st.baseline : (sel[0] && sel[0].id);
+    const baseScen = sel.find(s => s.id === baseId);
+    const study = this.studyBonus(f);
+    const french = this.frenchBonus(f);
+    const r = st.result;
+    const coreMax = affects ? 460 : 500;
+
+    const ageOptions = [{ v: '17', label: '17 or younger' }];
+    for (let a = 18; a <= 44; a++) ageOptions.push({ v: '' + a, label: '' + a });
+    ageOptions.push({ v: '45', label: '45 or older' });
+
+    const nYears = (max) => Array.from({ length: max + 1 }, (_, i) => ({ v: i, label: i >= max ? max + '+' : '' + i + (i === 1 ? ' year' : i === 0 ? ' — none' : ' years') }));
+
+    const bar = (pts, max) => ({ width: Math.min(100, Math.round(pts / max * 100)) + '%', height: '100%', background: '#C2683C', borderRadius: '999px', transition: 'width .4s ease' });
+
+    const breakdown = r ? [
+      { label: 'Core human capital', pts: r.core, ptsLabel: r.core + ' / ' + coreMax, barStyle: bar(r.core, coreMax) },
+      { label: 'Spouse factors', pts: r.spousePts, ptsLabel: r.spousePts + ' / 40', barStyle: bar(r.spousePts, 40) },
+      { label: 'Skill transferability', pts: r.transfer, ptsLabel: r.transfer + ' / 100', barStyle: bar(r.transfer, 100) },
+      { label: 'Additional points', pts: r.additional, ptsLabel: r.additional + ' / 600', barStyle: bar(r.additional, 600) }
+    ] : [];
+
+    const sections = this.sectionsDone(f).map(s => ({
+      name: s.name, mark: s.done ? '✓' : '',
+      dotStyle: { width: '18px', height: '18px', borderRadius: '999px', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: 800, border: s.done ? 'none' : '1.5px solid #DFD5C2', background: s.done ? '#3E8E5F' : '#fff', color: '#fff' },
+      txtStyle: { fontSize: '13.5px', fontWeight: 600, color: s.done ? '#3A3227' : '#A2957F' }
+    }));
+
+    const scenList = scenarios.map(s => {
+      const editing = st.editName === s.id;
+      const checked = st.compareSel.includes(s.id);
+      const confirming = st.confirmDelete === s.id;
+      return {
+        id: s.id, name: s.name, score: s.result.total, core: s.result.core, transfer: s.result.transfer, additional: s.result.additional,
+        dateLabel: 'Updated ' + this.fmtDate(s.updatedAt),
+        checked, checkMark: checked ? '✓' : '',
+        checkStyle: { width: '24px', height: '24px', borderRadius: '8px', flexShrink: 0, cursor: 'pointer', fontSize: '13px', fontWeight: 800, border: checked ? 'none' : '1.5px solid #DFD5C2', background: checked ? '#C2683C' : '#fff', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' },
+        onToggle: () => this.toggleSel(s.id),
+        onLoad: () => this.load(s),
+        onDelete: () => this.del(s.id),
+        deleteLabel: confirming ? 'Really?' : 'Delete',
+        deleteStyle: { background: confirming ? '#C05B4D' : 'none', color: confirming ? '#fff' : '#B7AB99', border: confirming ? 'none' : '1.5px solid #ECE3D4', borderRadius: '999px', padding: '8px 14px', fontWeight: 700, fontSize: '13px', fontFamily: 'inherit', cursor: 'pointer' },
+        isEditing: editing, notEditing: !editing,
+        nameValue: st.editNameVal,
+        onStartEdit: () => this.setState({ editName: s.id, editNameVal: s.name }),
+        onNameChange: (e) => this.setState({ editNameVal: e.target.value }),
+        onNameKey: (e) => { if (e.key === 'Enter') this.commitName(s.id); },
+        onNameSave: () => this.commitName(s.id)
+      };
+    });
+
+    const pickList = scenarios.map(s => {
+      const checked = st.compareSel.includes(s.id);
+      return {
+        name: s.name, score: s.result.total, checked, checkMark: checked ? '✓' : '',
+        onToggle: () => this.toggleSel(s.id),
+        style: { display: 'flex', alignItems: 'center', gap: '12px', background: '#fff', border: '1.5px solid ' + (checked ? '#C2683C' : '#ECE3D4'), borderRadius: '16px', padding: '14px 18px', cursor: 'pointer', fontFamily: 'inherit', fontSize: '14px', color: '#3A3227', width: '100%' },
+        checkStyle: { width: '22px', height: '22px', borderRadius: '7px', flexShrink: 0, fontSize: '12px', fontWeight: 800, border: checked ? 'none' : '1.5px solid #DFD5C2', background: checked ? '#C2683C' : '#fff', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }
+      };
+    });
+
+    // Comparison table
+    let compareHead = [], compareRows = [], headRowStyle = {}, baselineOptions = [];
+    if (enough && baseScen) {
+      const cols = '200px repeat(' + sel.length + ', minmax(150px, 1fr))';
+      headRowStyle = { display: 'grid', gridTemplateColumns: cols, alignItems: 'start', borderBottom: '2px solid #ECE3D4' };
+      baselineOptions = sel.map(s => ({ v: s.id, label: 'Baseline: ' + s.name }));
+      compareHead = sel.map(s => {
+        const isBase = s.id === baseId;
+        const d = this.delta(s.result.total, baseScen.result.total);
+        return { name: s.name, score: s.result.total,
+          tag: isBase ? 'baseline' : d.text,
+          tagStyle: { fontSize: '12px', fontWeight: 700, color: isBase ? '#8A7D6B' : d.color, background: isBase ? '#F1E9DC' : 'transparent', borderRadius: '999px', padding: isBase ? '2px 9px' : '0' } };
+      });
+      const mkRow = (label, get, opts) => {
+        const vals = sel.map(s => get(s));
+        const differs = new Set(vals.map(v => v.text)).size > 1;
+        const score = opts && opts.score;
+        return {
+          label,
+          style: { display: 'grid', gridTemplateColumns: cols, borderTop: '1px solid #F0E8DA', alignItems: 'stretch' },
+          labelStyle: { padding: '12px 16px', fontSize: '13px', fontWeight: score ? 700 : 600, color: score ? '#3A3227' : '#8A7D6B' },
+          cells: vals.map(v => ({
+            text: v.text, sub: v.sub || '',
+            style: { padding: '12px 14px', fontSize: score ? '14px' : '13.5px', fontWeight: score ? 700 : 500, color: '#3A3227', borderLeft: '1px solid #F0E8DA', background: differs && !score ? '#FBF0DE' : 'transparent', display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' },
+            subStyle: { fontSize: '12px', fontWeight: 700, color: v.subColor || '#B7AB99' }
+          }))
+        };
+      };
+      const scoreRow = (label, key) => mkRow(label, s => {
+        const d = this.delta(s.result[key], baseScen.result[key]);
+        return { text: '' + s.result[key], sub: s.id === baseId ? '' : d.text, subColor: d.color };
+      }, { score: true });
+      const inputRow = (label, get) => mkRow(label, s => ({ text: get(s.inputs) || '—' }));
+      compareRows = [
+        scoreRow('Core human capital', 'core'), scoreRow('Spouse factors', 'spousePts'),
+        scoreRow('Skill transferability', 'transfer'), scoreRow('Additional points', 'additional'),
+        inputRow('Spouse / partner', i => !i.hasSpouse ? 'No' : i.spousePR ? 'Yes — already PR/citizen' : i.spouseAcc ? 'Yes — coming along' : 'Yes — not coming'),
+        inputRow('Age', i => i.age === '17' ? '17 or younger' : i.age === '45' ? '45 or older' : i.age),
+        inputRow('Education', i => this.eduLabel(i.education)),
+        inputRow('Education in Canada', i => i.eduCanada ? (i.eduLen === 'one_two' ? 'Yes — 1–2 year credential' : 'Yes — 3+ year credential') : 'No'),
+        inputRow('Canadian work experience', i => this.fmtYears(i.cdnWork, 5)),
+        inputRow('Foreign work experience', i => this.fmtYears(i.foreignWork, 3)),
+        inputRow('Trade certificate', i => i.trade ? 'Yes' : 'No'),
+        inputRow('First language', i => this.langSummary(i.l1Test, i.l1)),
+        inputRow('Second language (French)', i => i.l2Test && i.l2Test !== 'none' ? this.langSummary(i.l2Test, i.l2) : 'None')
+      ];
+      if (sel.some(s => this.affects(s.inputs))) {
+        compareRows.push(
+          inputRow("Partner's education", i => this.affects(i) ? this.eduLabel(i.spEdu) : '—'),
+          inputRow("Partner's Canadian work", i => this.affects(i) ? this.fmtYears(i.spWork, 5) : '—'),
+          inputRow("Partner's language", i => this.affects(i) ? this.langSummary(i.spTest, i.sp) : '—')
+        );
+      }
+      compareRows.push(
+        inputRow('Provincial nomination', i => i.pn ? 'Yes' : 'No'),
+        inputRow('Sibling in Canada', i => i.sibling ? 'Yes' : 'No')
+      );
+    }
+
+    const testOptions = Component.TESTS.map(t => ({ v: t.v, label: t.label + (t.disabled ? ' — coming soon' : ''), disabled: !!t.disabled }));
+
+    return {
+      isCalc: st.view === 'calc', isScenarios: st.view === 'scenarios', isCompare: st.view === 'compare',
+      goCalc: () => this.setState({ view: 'calc' }),
+      goScen: () => this.setState({ view: 'scenarios', confirmDelete: null }),
+      goComp: () => this.setState({ view: 'compare' }),
+      tabCalcStyle: this.tab(st.view === 'calc'), tabScenStyle: this.tab(st.view === 'scenarios'), tabCompStyle: this.tab(st.view === 'compare'),
+      hasScenarios: scenarios.length > 0, noScenarios: scenarios.length === 0, scenarioCount: scenarios.length,
+      donateUrl: this.props.donateUrl ?? 'https://ko-fi.com/',
+      onDonate: () => {},
+      showBanner: st.view === 'calc' && !st.calculatedOnce && !st.bannerDismissed,
+      dismissBanner: () => this.setState({ bannerDismissed: true }),
+      qSpouse: this.mkSeg(yn, f.hasSpouse, v => this.sf({ hasSpouse: v, spousePR: null, spouseAcc: null })),
+      qSpousePR: this.mkSeg(yn, f.spousePR, v => this.sf({ spousePR: v, spouseAcc: null })),
+      qSpouseAcc: this.mkSeg(yn, f.spouseAcc, v => this.sf({ spouseAcc: v })),
+      showSpousePR: f.hasSpouse === true,
+      showPRNote: f.hasSpouse === true && f.spousePR === true,
+      showSpouseAcc: f.hasSpouse === true && f.spousePR === false,
+      spouseSection: affects,
+      qEduCanada: this.mkSeg(yn, f.eduCanada, v => this.sf({ eduCanada: v, eduLen: null })),
+      showEduLen: f.eduCanada === true,
+      qEduLen: this.mkSeg([{ v: 'one_two', label: '1 or 2 years' }, { v: 'three_plus', label: '3 years or longer' }], f.eduLen, v => this.sf({ eduLen: v })),
+      qTrade: this.mkSeg(yn, f.trade, v => this.sf({ trade: v })),
+      qCdnWork: this.mkSeg(nYears(5), f.cdnWork, v => this.sf({ cdnWork: v })),
+      qForeignWork: this.mkSeg(nYears(3), f.foreignWork, v => this.sf({ foreignWork: v })),
+      qSpWork: this.mkSeg(nYears(5), f.spWork, v => this.sf({ spWork: v })),
+      qPN: this.mkSeg(yn, f.pn, v => this.sf({ pn: v })),
+      qSibling: this.mkSeg(yn, f.sibling, v => this.sf({ sibling: v })),
+      qL2Test: this.mkSeg([{ v: 'tef_canada', label: 'TEF Canada' }, { v: 'tcf', label: 'TCF Canada' }, { v: 'none', label: 'Not applicable' }], f.l2Test, v => this.sf({ l2Test: v, l2: { s: '', l: '', r: '', w: '' } })),
+      showL2Bands: f.l2Test != null && f.l2Test !== 'none',
+      ageValue: f.age, onAge: (e) => this.sf({ age: e.target.value }), ageOptions,
+      eduValue: f.education, onEdu: (e) => this.sf({ education: e.target.value }), eduOptions: Component.EDU,
+      l1TestValue: f.l1Test, onL1Test: (e) => this.sf({ l1Test: e.target.value, l1: { s: '', l: '', r: '', w: '' } }),
+      l1TestName: Component.TESTNAME[f.l1Test],
+      testOptions,
+      l1Bands: this.mkBands(f.l1Test, f.l1, 'l1'),
+      l2Bands: this.mkBands(f.l2Test || 'tef_canada', f.l2, 'l2'),
+      spBands: this.mkBands(f.spTest, f.sp, 'sp'),
+      spEduValue: f.spEdu, onSpEdu: (e) => this.sf({ spEdu: e.target.value }),
+      spTestValue: f.spTest, onSpTest: (e) => this.sf({ spTest: e.target.value, sp: { s: '', l: '', r: '', w: '' } }),
+      boostNum: affects ? '6' : '5',
+      studyBonusLabel: f.eduCanada == null ? 'answer above to find out' : study ? '+' + study + ' points' : f.eduCanada && !f.eduLen ? 'pick a credential length above' : 'not earned (no Canadian credential)',
+      frenchBonusLabel: french ? '+' + french + ' points' : 'not earned — needs NCLC 7+ in all four French abilities',
+      sections, missingCount: miss.length,
+      missingLabel: canCalc ? 'All set — ready to calculate' : miss.length + (miss.length === 1 ? ' answer' : ' answers') + ' still needed',
+      missingColor: canCalc ? '#3E8E5F' : '#B98A2F',
+      calcDisabled: !canCalc,
+      calcStyle: { width: '100%', background: canCalc ? '#C2683C' : '#E2D8C6', color: canCalc ? '#fff' : '#A2957F', border: 'none', borderRadius: '999px', padding: '14px 20px', fontWeight: 700, fontSize: '15px', fontFamily: 'inherit', cursor: canCalc ? 'pointer' : 'not-allowed', marginTop: r ? '0' : '0' },
+      onCalculate: () => this.calculate(),
+      hasResult: !!r, noResult: !r, isStale: !!(r && r.stale),
+      totalScore: r ? r.total : 0, breakdown,
+      editingChip: !!st.currentId, editingName: (scenarios.find(s => s.id === st.currentId) || {}).name || '',
+      saveName: st.saveName, onSaveName: (e) => this.setState({ saveName: e.target.value }),
+      onSave: () => this.save(false), onSaveAsNew: () => this.save(true),
+      saveLabel: st.currentId && scenarios.some(s => s.id === st.currentId) ? 'Update scenario' : 'Save scenario',
+      showSaveAsNew: !!(st.currentId && scenarios.some(s => s.id === st.currentId)),
+      scenList,
+      onNewScenario: () => this.setState({ form: Component.blankForm(), result: null, currentId: null, saveName: '', view: 'calc' }),
+      clearOpen: st.clearOpen, onClearOpen: () => this.setState({ clearOpen: true, clearText: '' }),
+      onClearCancel: () => this.setState({ clearOpen: false, clearText: '' }),
+      clearText: st.clearText, onClearText: (e) => this.setState({ clearText: e.target.value }),
+      clearDisabled: st.clearText.trim().toLowerCase() !== 'delete',
+      clearStyle: { background: st.clearText.trim().toLowerCase() === 'delete' ? '#C05B4D' : '#E9D5D0', color: st.clearText.trim().toLowerCase() === 'delete' ? '#fff' : '#B08D85', border: 'none', borderRadius: '999px', padding: '9px 18px', fontWeight: 700, fontSize: '13.5px', fontFamily: 'inherit', cursor: st.clearText.trim().toLowerCase() === 'delete' ? 'pointer' : 'not-allowed' },
+      onClearConfirm: () => { this.setState({ scenarios: [], compareSel: [], clearOpen: false, clearText: '', currentId: null }); this._samples = []; this.persist([]); this.showToast('All scenarios deleted'); },
+      compareReady: st.compareSel.length >= 2, selectedCount: st.compareSel.length,
+      notEnough: !enough, enough, pickList,
+      baselineValue: baseId || '', onBaseline: (e) => this.setState({ baseline: e.target.value }), baselineOptions,
+      compareHead, compareRows, headRowStyle,
+      toastOn: !!st.toast, toastMsg: st.toast
+    };
+  }
+  commitName(id) {
+    const name = (this.state.editNameVal || '').trim();
+    if (!name) { this.setState({ editName: null }); return; }
+    const list = this.listAll().map(s => s.id === id ? { ...s, name, updatedAt: Date.now() } : s);
+    this.setState({ scenarios: list, editName: null });
+    this.persist(list);
+  }
+}
+</script>
+</body>
+</html>
