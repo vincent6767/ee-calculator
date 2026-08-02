@@ -1,0 +1,23 @@
+html, body { margin: 0; padding: 0; background: #FAF6F0; }
+* { box-sizing: border-box; }
+body { font-family: 'Figtree', sans-serif; color: #3A3227; }
+a { color: #A8552E; text-decoration: none; }
+a:hover { color: #8A431F; text-decoration: underline; }
+select:focus, input:focus, button:focus-visible { outline: 2px solid #C2683C; outline-offset: 1px; }
+button { font-family: inherit; }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.pill-option:hover { border-color: #C2683C; }
+.tab-btn:hover { color: #3A3227; }
+.btn-solid:hover { background: #A8552E; }
+.btn-outline:hover { background: #F8E7D9; }
+.link-plain:hover { text-decoration: none; }
+.donate-link:hover { background: #F8E7D9; text-decoration: none; }
+.subtle-btn:hover { border-color: #C2683C; color: #A8552E; }
+.danger-hover:hover { border-color: #C05B4D; color: #C05B4D; }
+.dark-btn:hover { background: #57493A; }
+.icon-btn:hover { color: #A8552E; }
