@@ -115,6 +115,17 @@ Placement: shown before the first calculation (e.g. a banner or short modal) and
 - Do not send any personal or scenario data (age, scores, language results, names) to the analytics tool.
 - A privacy-friendly, lightweight analytics tool (e.g. Plausible, Fathom, or a self-hosted option like Umami) fits the "no personal data leaves the browser" principle better than a tool that relies on tracking cookies or fingerprinting.
 
+### 6.7 Feedback and issue reporting
+
+- A "Report an issue or send feedback" link in the footer, next to the donate link, using the same link-out pattern (no server-side collection).
+- Implementation: a `mailto:` link, no third-party form or backend needed for v1.
+  - Address: `vincentmok94+crswhatifs@gmail.com` (a "+" alias, not the maintainer's bare personal address, so it can be filtered or retired independently later).
+  - Pre-filled subject line: `CRS Planner feedback`.
+- Footer copy near the link: a short prompt asking users to include the language test and bands they entered, since that's the detail needed to reproduce a scoring discrepancy.
+- Optional (nice-to-have, not required for v1): a "Copy scenario details" action on the Score Card that copies the current inputs and result as plain text, so users can paste their exact scenario into the feedback email without retyping it.
+- Analytics: fire a `feedback_clicked` event (see 6.6) when the link is clicked, same pattern as `donate_clicked`. Never send feedback content itself through analytics.
+- Out of scope for v1: in-app feedback form, ticket tracking, or any server-side storage of feedback content.
+
 ## 7. Data model (per saved scenario)
 
 ```
@@ -222,6 +233,7 @@ Note on language bands: the scoring engine needs a band-to-CLB lookup table per 
 - **Update process for scoring rule changes**: the maintainer will monitor and flag IRCC rule changes when they happen; the scoring module, lookup tables, and regression fixtures get updated on notification (see 6.1).
 - **Job offer question**: confirmed excluded from v1 (see 6.1).
 - **Cross-device accounts**: confirmed interest, planned for the next iteration after v1 (see section 11). Not required for v1's core value.
+- **Feedback mechanism**: a `mailto:` link in the footer (dedicated alias, not personal email), matching the donation link's link-out pattern. No backend or third-party form for v1.
 
 ### Still open
 
