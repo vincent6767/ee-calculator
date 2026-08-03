@@ -210,7 +210,7 @@ export function usePlanner(props: PlannerProps = {}) {
   }
 
   return {
-    donateUrl: props.donateUrl ?? 'https://ko-fi.com/',
+    donateUrl: props.donateUrl ?? 'https://ko-fi.com/vincent69669',
     liveScoring: !!props.liveScoring,
     view, setView,
     form, sf, sfBand,

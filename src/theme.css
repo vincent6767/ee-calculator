@@ -16,7 +16,6 @@ button { font-family: inherit; }
 .btn-solid:hover { background: #A8552E; }
 .btn-outline:hover { background: #F8E7D9; }
 .link-plain:hover { text-decoration: none; }
-.donate-link:hover { background: #F8E7D9; text-decoration: none; }
 .subtle-btn:hover { border-color: #C2683C; color: #A8552E; }
 .danger-hover:hover { border-color: #C05B4D; color: #C05B4D; }
 .dark-btn:hover { background: #57493A; }

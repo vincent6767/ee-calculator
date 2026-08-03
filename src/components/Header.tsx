@@ -33,17 +33,6 @@ export function Header({ planner }: { planner: Planner }) {
           Compare
         </button>
       </nav>
-
-      <a
-        href={planner.donateUrl}
-        target="_blank"
-        rel="noopener"
-        onClick={planner.onDonate}
-        className="donate-link"
-        style={{ border: `1.5px solid ${colors.accent}`, color: '#A8552E', borderRadius: 999, padding: '8px 18px', fontWeight: 700, fontSize: 13.5, textDecoration: 'none' }}
-      >
-        Donate
-      </a>
     </header>
   );
 }

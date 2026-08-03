@@ -33,7 +33,7 @@ select:focus,input:focus,button:focus-visible{outline:2px solid #C2683C;outline-
       <button onClick="{{ goScen }}" style="{{ tabScenStyle }}" style-hover="color:#3A3227">My scenarios<sc-if value="{{ hasScenarios }}" hint-placeholder-val="{{ false }}"><span style="background:#C2683C;color:#fff;border-radius:999px;font-size:11px;font-weight:700;padding:1px 7px;margin-left:7px;">{{ scenarioCount }}</span></sc-if></button>
       <button onClick="{{ goComp }}" style="{{ tabCompStyle }}" style-hover="color:#3A3227">Compare</button>
     </nav>
-    <a href="{{ donateUrl }}" target="_blank" rel="noopener" onClick="{{ onDonate }}" style="border:1.5px solid #C2683C;color:#A8552E;border-radius:999px;padding:8px 18px;font-weight:700;font-size:13.5px;text-decoration:none;" style-hover="background:#F8E7D9;text-decoration:none">Donate</a>
+    
   </header>
 
   <sc-if value="{{ isCalc }}" hint-placeholder-val="{{ true }}">
@@ -437,10 +437,11 @@ select:focus,input:focus,button:focus-visible{outline:2px solid #C2683C;outline-
         <div style="font-weight:700;color:#6E6250;margin-bottom:6px;">About this tool</div>
         <div>Scoring rules last verified <strong>July 23, 2026</strong></div>
         <div>Your data never leaves this browser.</div>
-        <div style="margin-top:10px;"><a href="{{ donateUrl }}" target="_blank" rel="noopener" onClick="{{ onDonate }}" style="font-weight:700;">♥ Support this tool with a donation</a></div>
+        <div style="margin-top:10px;"><a href="{{ donateUrl }}" target="_blank" rel="noopener" onClick="{{ onDonate }}" style="font-weight:700;">♥ Support this tool with a tip</a></div>
       </div>
     </div>
   </footer>
+
 
   <sc-if value="{{ toastOn }}" hint-placeholder-val="{{ false }}">
     <div style="position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#3A3227;color:#FAF6F0;border-radius:999px;padding:11px 22px;font-size:13.5px;font-weight:600;box-shadow:0 8px 24px rgba(40,30,15,0.3);z-index:50;animation:fadeUp .25s ease;pointer-events:none;">{{ toastMsg }}</div>
@@ -640,6 +641,25 @@ class Component extends DCLogic {
       const raw = localStorage.getItem('crsPlannerScenarios');
       if (raw) { const list = JSON.parse(raw); if (Array.isArray(list) && list.length) this.setState({ scenarios: list }); }
     } catch (e) {}
+    if (!window.__kofiLoaded) {
+      window.__kofiLoaded = true;
+      const s = document.createElement('script');
+      s.src = 'https://storage.ko-fi.com/cdn/scripts/overlay-widget.js';
+      s.onload = () => {
+        try {
+          kofiWidgetOverlay.draw('vincent69669', {
+            'type': 'floating-chat',
+            'floating-chat.donateButton.text': 'Support me',
+            'floating-chat.donateButton.background-color': '#C2683C',
+            'floating-chat.donateButton.text-color': '#fff'
+          });
+        } catch (e) {}
+        const fix = document.createElement('style');
+        fix.textContent = '[id*="kofi-widget-overlay"] div, .floatingchat-container-wrap, .floatingchat-container-wrap-mobi { left: unset !important; right: 16px !important; } .floating-chat-kofi-popup-iframe, .floating-chat-kofi-popup-iframe-mobi { left: unset !important; right: 16px !important; }';
+        document.head.appendChild(fix);
+      };
+      document.body.appendChild(s);
+    }
   }
 
   sf(patch) {
@@ -863,7 +883,7 @@ class Component extends DCLogic {
       goComp: () => this.setState({ view: 'compare' }),
       tabCalcStyle: this.tab(st.view === 'calc'), tabScenStyle: this.tab(st.view === 'scenarios'), tabCompStyle: this.tab(st.view === 'compare'),
       hasScenarios: scenarios.length > 0, noScenarios: scenarios.length === 0, scenarioCount: scenarios.length,
-      donateUrl: this.props.donateUrl ?? 'https://ko-fi.com/',
+      donateUrl: this.props.donateUrl ?? 'https://ko-fi.com/vincent69669',
       onDonate: () => {},
       showBanner: st.view === 'calc' && !st.calculatedOnce && !st.bannerDismissed,
       dismissBanner: () => this.setState({ bannerDismissed: true }),

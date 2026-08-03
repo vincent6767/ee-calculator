@@ -26,7 +26,7 @@ export function Footer({ planner }: { planner: Planner }) {
           <div>Your data never leaves this browser.</div>
           <div style={{ marginTop: 10 }}>
             <a href={planner.donateUrl} target="_blank" rel="noopener" onClick={planner.onDonate} style={{ fontWeight: 700 }}>
-              ♥ Support this tool with a donation
+              ♥ Support this tool with a tip
             </a>
           </div>
         </div>

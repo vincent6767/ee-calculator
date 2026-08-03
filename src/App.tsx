@@ -1,6 +1,7 @@
 import { Header } from './components/Header';
 import { Footer } from './components/Footer';
 import { Toast } from './components/Toast';
+import { KofiWidget } from './components/KofiWidget';
 import { CalculatorView } from './components/calculator/CalculatorView';
 import { ScenarioListView } from './components/scenarios/ScenarioList';
 import { CompareView } from './components/compare/CompareView';
@@ -17,6 +18,7 @@ export default function App(props: PlannerProps = {}) {
       {planner.view === 'compare' && <CompareView planner={planner} />}
       <Footer planner={planner} />
       <Toast planner={planner} />
+      <KofiWidget />
     </div>
   );
 }

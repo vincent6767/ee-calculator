@@ -19,7 +19,7 @@ Single page, three views switched by a pill tab nav in the header (`view` state:
 ### Header (all views)
 - Logo: 36×36 rounded square (radius 12), bg #C2683C, white "CRS" in Bricolage Grotesque 800 12px; beside it "Scenario Planner" (Bricolage 700 17px) over "Express Entry · saves to your browser" (11.5px #8A7D6B). Clicking logo goes to Calculator.
 - Tab nav: pill container bg #F1E9DC radius 999, 4px padding; active tab = white pill, #3A3227 text, subtle shadow `0 1px 4px rgba(60,45,25,0.12)`; inactive = transparent, #8A7D6B. "My scenarios" shows a count badge (bg #C2683C, white, 11px) when scenarios exist.
-- Donate button: outlined pill, 1.5px #C2683C border, #A8552E text, hover bg #F8E7D9. URL is configurable (`donateUrl` prop, default `https://ko-fi.com/`).
+- No donate button in the header — tipping is handled by the Ko-fi floating widget (see below).
 
 ### View 1 — Calculator
 Two-column layout: form (flexible) + sticky score card (~340px) on the right; stacks on narrow screens.
@@ -53,6 +53,7 @@ Comparison grid rows (label column + one column per scenario, 1px #F0E8DA rules)
 
 ### Global
 - Toast: fixed bottom-center dark pill (bg #3A3227, text #FAF6F0, radius 999), fadeUp .25s, auto-dismiss 2.6s.
+- **Ko-fi floating tip widget**: load `https://storage.ko-fi.com/cdn/scripts/overlay-widget.js` once on app mount, then call `kofiWidgetOverlay.draw('vincent69669', { 'type': 'floating-chat', 'floating-chat.donateButton.text': 'Support me', 'floating-chat.donateButton.background-color': '#C2683C', 'floating-chat.donateButton.text-color': '#fff' })`. Ko-fi anchors it bottom-LEFT with no position option — override to bottom-right (16px from edge) with CSS injected after the script loads, targeting both the button and its popup panel: `.floatingchat-container-wrap, .floatingchat-container-wrap-mobi, [id*="kofi-widget-overlay"] div { left: unset !important; right: 16px !important; }` and `.floating-chat-kofi-popup-iframe, .floating-chat-kofi-popup-iframe-mobi { left: unset !important; right: 16px !important; }` (Ko-fi's class names may change — verify in devtools). Clicking opens Ko-fi's tip panel in-app. See `componentDidMount` in the DC file for the working reference implementation.
 - Footer: disclaimer block ("informational purposes only… not immigration advice… verify against official IRCC tools") + links column. Keep the disclaimer — it's a legal requirement of the product.
 - `fadeUp` keyframes: opacity 0 / translateY(8px) → 1 / 0.
 
@@ -62,6 +63,7 @@ Comparison grid rows (label column + one column per scenario, 1px #F0E8DA rules)
 - Save: name defaults to "Scenario N"; saving with a loaded scenario updates it, "Save as new" forks. Toast confirms Saved/Updated with the name.
 - Load: deep-copies inputs into the form, restores result, switches to Calculator.
 - Delete: two-step confirm on the card itself (no modal).
+- Footer "♥ Support this tool with a tip" link opens `donateUrl` in a new tab.
 - Spouse gating: partner section and with-spouse point tables apply only when spouse exists, is not PR/citizen, and is accompanying (`affects()`).
 - Disabled test options (none currently) show a toast instead of selecting.
 - Focus: 2px #C2683C outline, offset 1px, on selects/inputs/`button:focus-visible`.
@@ -69,7 +71,7 @@ Comparison grid rows (label column + one column per scenario, 1px #F0E8DA rules)
 ## State Management
 - `view`, `form` (all questionnaire answers; language bands keyed s/l/r/w), `result` ({total, core, spousePts, transfer, additional, stale}), `currentId`, `saveName`, `scenarios[]` ({id, name, createdAt, updatedAt, inputs, result}), `compareSel[]`, `baseline`, `confirmDelete`, `toast`, `bannerDismissed`, `calculatedOnce`.
 - Persistence: `localStorage["crsPlannerScenarios"]` (JSON array), loaded on mount, written on save/delete. No backend.
-- Props (make configurable): `donateUrl` (string), `liveScoring` (bool), `sampleData` (bool — three demo scenarios when nothing is saved).
+- Props (make configurable): `donateUrl` (string, default `https://ko-fi.com/vincent69669` — used by the footer tip link; the Ko-fi widget handle is hard-coded), `liveScoring` (bool), `sampleData` (bool — three demo scenarios when nothing is saved).
 
 ## Scoring Logic (port verbatim)
 All in `class Component` of the DC file:
