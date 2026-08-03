@@ -28,7 +28,13 @@ export function KofiWidget() {
         // Ko-fi's own stock CSS puts the popup 75px above the bottom edge, which is
         // shorter than the floating button's actual footprint (65px tall + 16px offset),
         // so the two overlap by ~6px. Bump the clearance so the panel sits fully above it.
-        ' .floating-chat-kofi-popup-iframe, .floating-chat-kofi-popup-iframe-mobi { bottom: 100px !important; }';
+        ' .floating-chat-kofi-popup-iframe, .floating-chat-kofi-popup-iframe-mobi { bottom: 100px !important; }' +
+        // Ko-fi bug present even with stock positioning/sizing: the popup's inner iframe is
+        // sized to 98% of the wrapper's height, but the "Powered by Ko-fi" notice footer
+        // below it is 47px tall while only ~2% (~13px) is left for it, so the iframe's
+        // bottom edge overlaps ~34px into the notice div, visually crossing its text.
+        // Reserve the notice's actual height instead of relying on Ko-fi's 98%.
+        ' .floating-chat-kofi-popup-iframe iframe, .floating-chat-kofi-popup-iframe-mobi iframe { height: calc(100% - 48px) !important; }';
       document.head.appendChild(fix);
     };
     document.body.appendChild(s);
