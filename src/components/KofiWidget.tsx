@@ -24,7 +24,11 @@ export function KofiWidget() {
       } catch (e) {}
       const fix = document.createElement('style');
       fix.textContent =
-        '[id*="kofi-widget-overlay"] div, .floatingchat-container-wrap, .floatingchat-container-wrap-mobi { left: unset !important; right: 16px !important; } .floating-chat-kofi-popup-iframe, .floating-chat-kofi-popup-iframe-mobi { left: unset !important; right: 16px !important; }';
+        '[id*="kofi-widget-overlay"] div, .floatingchat-container-wrap, .floatingchat-container-wrap-mobi { left: unset !important; right: 16px !important; } .floating-chat-kofi-popup-iframe, .floating-chat-kofi-popup-iframe-mobi { left: unset !important; right: 16px !important; }' +
+        // Ko-fi's own stock CSS puts the popup 75px above the bottom edge, which is
+        // shorter than the floating button's actual footprint (65px tall + 16px offset),
+        // so the two overlap by ~6px. Bump the clearance so the panel sits fully above it.
+        ' .floating-chat-kofi-popup-iframe, .floating-chat-kofi-popup-iframe-mobi { bottom: 100px !important; }';
       document.head.appendChild(fix);
     };
     document.body.appendChild(s);
