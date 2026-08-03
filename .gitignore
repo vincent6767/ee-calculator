@@ -1,5 +1,6 @@
 plan.md
 designs/
+.claude/worktrees/
 
 node_modules/
 dist/
