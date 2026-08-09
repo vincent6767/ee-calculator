@@ -22,6 +22,7 @@ export interface StaleResult extends ScoreResult {
 
 export interface PlannerProps {
   donateUrl?: string;
+  feedbackUrl?: string;
   liveScoring?: boolean;
   sampleData?: boolean;
 }
@@ -209,8 +210,13 @@ export function usePlanner(props: PlannerProps = {}) {
     track('donate_clicked');
   }
 
+  function onFeedback() {
+    track('feedback_clicked');
+  }
+
   return {
     donateUrl: props.donateUrl ?? 'https://ko-fi.com/vincent69669',
+    feedbackUrl: props.feedbackUrl ?? 'mailto:vincentmok94+crsscenarios@gmail.com?subject=CRS%20Planner%20feedback',
     liveScoring: !!props.liveScoring,
     view, setView,
     form, sf, sfBand,
@@ -238,6 +244,7 @@ export function usePlanner(props: PlannerProps = {}) {
     canCalculate,
     newScenario,
     onDonate,
+    onFeedback,
   };
 }
 

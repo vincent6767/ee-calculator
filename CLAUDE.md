@@ -8,7 +8,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 The app was implemented from a design handoff bundle and a product spec, both still present in the repo as reference material:
 
-- `Branching calculator prototype review/design_handoff_crs_scenario_planner/` — the original design + logic reference (`CRS Scenario Planner.dc.html`, `README.md`, `screenshots/`). The scoring engine in `src/scoring/` was ported verbatim from this bundle's `class Component`; the `README.md` there is still the source of truth for exact design tokens and copy.
+- `designs/Branching calculator prototype review/design_handoff_crs_scenario_planner/` — the original design + logic reference (`CRS Scenario Planner.dc.html`, `README.md`, `screenshots/`). The scoring engine in `src/scoring/` was ported verbatim from this bundle's `class Component`; the `README.md` there is still the source of truth for exact design tokens and copy.
 - `express-entry-crs-planner-spec.md` — the product spec (user stories, functional requirements, data model). Useful for *why* a behavior exists, not just *what* it does.
 
 Consult both when a requirement is ambiguous — the handoff bundle for pixel/behavior fidelity, the spec for product intent and out-of-scope boundaries (§3).
@@ -54,7 +54,7 @@ src/
 
 Key behaviors to preserve:
 - Scenarios persist to `localStorage["crsPlannerScenarios"]` (JSON array), loaded on mount, written on save/delete/rename/clear-all.
-- Configurable `usePlanner` props: `donateUrl` (string), `liveScoring` (bool — recompute on every change instead of the stale-banner flow), `sampleData` (bool — show three demo scenarios when nothing is saved).
+- Configurable `usePlanner` props: `donateUrl` (string), `feedbackUrl` (string — the footer "Report an issue or send feedback" mailto link), `liveScoring` (bool — recompute on every change instead of the stale-banner flow), `sampleData` (bool — show three demo scenarios when nothing is saved).
 - Spouse gating (`affects()` in `scoring.ts`): the partner form section and with-spouse point tables apply only when a spouse exists, is not a PR/citizen, and is accompanying.
 - Score breakdown: core human capital (/500, or /460 with spouse), spouse factors (/40), skill transferability (/100), additional points (/600); total capped at 1,200.
-- Analytics (`lib/analytics.ts`) fires named funnel events only (`calculated`, `saved`, `compared`, `donate_clicked`) — never form inputs, scores, or language results (spec §6.6).
+- Analytics (`lib/analytics.ts`) fires named funnel events only (`calculated`, `saved`, `compared`, `donate_clicked`, `feedback_clicked`) — never form inputs, scores, or language results (spec §6.6).

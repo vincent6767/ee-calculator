@@ -1,5 +1,5 @@
 import { act, renderHook } from '@testing-library/react';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { usePlanner } from './usePlanner';
 
 const completeProfile = {
@@ -108,5 +108,34 @@ describe('usePlanner', () => {
 
     act(() => result.current.setBaseline('b'));
     expect(result.current.baseline).toBe('b');
+  });
+
+  describe('feedback', () => {
+    afterEach(() => {
+      delete (window as unknown as { plausible?: unknown }).plausible;
+    });
+
+    it('defaults feedbackUrl to the mailto address with the pre-filled subject', () => {
+      const { result } = renderHook(() => usePlanner());
+      expect(result.current.feedbackUrl).toBe(
+        'mailto:vincentmok94+crsscenarios@gmail.com?subject=CRS%20Planner%20feedback'
+      );
+    });
+
+    it('a caller-supplied feedbackUrl overrides the default', () => {
+      const { result } = renderHook(() => usePlanner({ feedbackUrl: 'mailto:someone@example.com' }));
+      expect(result.current.feedbackUrl).toBe('mailto:someone@example.com');
+    });
+
+    it('onFeedback() fires exactly one feedback_clicked analytics event with no payload', () => {
+      const plausible = vi.fn();
+      (window as unknown as { plausible: typeof plausible }).plausible = plausible;
+
+      const { result } = renderHook(() => usePlanner());
+      act(() => result.current.onFeedback());
+
+      expect(plausible).toHaveBeenCalledTimes(1);
+      expect(plausible).toHaveBeenCalledWith('feedback_clicked');
+    });
   });
 });

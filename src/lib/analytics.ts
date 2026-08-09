@@ -2,7 +2,7 @@
 // events only — never form inputs, scores, or language results. The concrete
 // provider (Plausible/Fathom/Umami/etc.) is a launch-time config decision;
 // this stays a no-op until `window.plausible` (or similar) is wired in.
-export type AnalyticsEvent = 'page_view' | 'calculated' | 'saved' | 'compared' | 'donate_clicked';
+export type AnalyticsEvent = 'page_view' | 'calculated' | 'saved' | 'compared' | 'donate_clicked' | 'feedback_clicked';
 
 export function track(event: AnalyticsEvent): void {
   if (typeof window === 'undefined') return;

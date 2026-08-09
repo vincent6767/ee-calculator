@@ -119,7 +119,7 @@ Placement: shown before the first calculation (e.g. a banner or short modal) and
 
 - A "Report an issue or send feedback" link in the footer, next to the donate link, using the same link-out pattern (no server-side collection).
 - Implementation: a `mailto:` link, no third-party form or backend needed for v1.
-  - Address: `vincentmok94+crswhatifs@gmail.com` (a "+" alias, not the maintainer's bare personal address, so it can be filtered or retired independently later).
+  - Address: `vincentmok94+crsscenarios@gmail.com` (a "+" alias, not the maintainer's bare personal address, so it can be filtered or retired independently later).
   - Pre-filled subject line: `CRS Planner feedback`.
 - Footer copy near the link: a short prompt asking users to include the language test and bands they entered, since that's the detail needed to reproduce a scoring discrepancy.
 - Optional (nice-to-have, not required for v1): a "Copy scenario details" action on the Score Card that copies the current inputs and result as plain text, so users can paste their exact scenario into the feedback email without retyping it.

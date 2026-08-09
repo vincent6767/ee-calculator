@@ -17,6 +17,14 @@ export function Footer({ planner }: { planner: Planner }) {
           best effort to keep it accurate and current, but we don't guarantee it matches the official Government of
           Canada calculation, and we accept no liability for any loss or damage arising from its use. Always confirm
           your score using the official IRCC tools before making decisions.
+          <div style={{ marginTop: 16, display: 'flex', flexDirection: 'column', gap: 6, alignItems: 'flex-start' }}>
+            <a href={planner.feedbackUrl} onClick={planner.onFeedback} className="feedback-btn">
+              Report an issue or send feedback
+            </a>
+            <div style={{ fontSize: 12, color: colors.muted, lineHeight: 1.6 }}>
+              Spot a scoring issue? Include the test type and bands you entered so we can reproduce it.
+            </div>
+          </div>
         </div>
         <div style={{ flex: '1 1 240px', fontSize: 12.5, color: colors.muted, lineHeight: 1.8 }}>
           <div style={{ fontWeight: 700, color: '#6E6250', marginBottom: 6 }}>About this tool</div>
