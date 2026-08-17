@@ -34,3 +34,57 @@ button { font-family: inherit; }
 .danger-hover:hover { border-color: #C05B4D; color: #C05B4D; }
 .dark-btn:hover { background: #57493A; }
 .icon-btn:hover { color: #A8552E; }
+
+/* Static SEO content (index.html, outside #root) — visible to crawlers and with JS
+   disabled; hidden once React mounts so the same information isn't shown twice. */
+.js #seo-content { display: none; }
+
+#seo-content {
+  background: #FAF6F0;
+  border-top: 1px solid #ECE3D4;
+  padding: 48px 20px 60px;
+}
+
+.seo-content-inner {
+  max-width: 1120px;
+  margin: 0 auto;
+  color: #3A3227;
+}
+
+.seo-content-inner h1 {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-weight: 800;
+  font-size: 28px;
+  margin: 0 0 14px;
+}
+
+.seo-content-inner h2 {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-weight: 700;
+  font-size: 20px;
+  margin: 32px 0 10px;
+}
+
+.seo-content-inner h3 {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-weight: 600;
+  font-size: 16px;
+  margin: 20px 0 6px;
+}
+
+.seo-content-inner p {
+  font-family: 'Figtree', sans-serif;
+  font-size: 14.5px;
+  line-height: 1.7;
+  color: #5C5142;
+  margin: 0 0 4px;
+}
+
+.seo-content-inner .seo-disclaimer {
+  margin-top: 32px;
+  padding-top: 20px;
+  border-top: 1px solid #ECE3D4;
+  font-size: 12.5px;
+  line-height: 1.7;
+  color: #8A7D6B;
+}

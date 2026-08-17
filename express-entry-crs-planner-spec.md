@@ -126,6 +126,29 @@ Placement: shown before the first calculation (e.g. a banner or short modal) and
 - Analytics: fire a `feedback_clicked` event (see 6.6) when the link is clicked, same pattern as `donate_clicked`. Never send feedback content itself through analytics.
 - Out of scope for v1: in-app feedback form, ticket tracking, or any server-side storage of feedback content.
 
+### 6.8 Discoverability and SEO
+
+The app is a single-route client-only SPA — everything renders into `#root` after the JS bundle
+loads, so a non-JS-executing crawler sees an empty page. To make the tool discoverable in search:
+
+- **Static content, not prerendering, for v1.** A hand-written section of plain HTML — headline,
+  explanatory copy, an FAQ, and the disclaimer — lives in `index.html` directly after `<div
+  id="root">`. It is present in the served source (visible to every crawler, JS or not) and is
+  hidden via CSS (`.js #seo-content`) once React mounts, so a JS-enabled visitor sees the normal
+  app rather than duplicated content. See §10 for why this was chosen over prerendering.
+- **Metadata ownership**: `<title>`, meta description, canonical URL, Open Graph/Twitter tags,
+  theme-color, and favicon all live in `index.html`'s `<head>` — not injected by React on mount —
+  since social/link-preview crawlers only read served HTML.
+- **Structured data**: one `application/ld+json` block in `index.html` with a `WebApplication`
+  entry and a `FAQPage` entry. The `FAQPage` question/answer text must match the visible FAQ copy
+  in the static section exactly — Google penalizes structured-data/visible-content mismatches.
+  Guarded by a test (`src/seo.test.ts`) that reads `index.html` and asserts the two copies match.
+- **Crawl infrastructure**: `public/robots.txt` (allow all, points at the sitemap) and
+  `public/sitemap.xml` (single canonical URL). `lastmod` should be bumped on meaningful content
+  changes (see `CLAUDE.md`).
+- No scoring, analytics, or donation behavior changes as part of this work — the constraints in
+  6.1 and 6.6 still apply.
+
 ## 7. Data model (per saved scenario)
 
 ```
@@ -222,6 +245,9 @@ Note on language bands: the scoring engine needs a band-to-CLB lookup table per 
 - Feedback/support messages reporting incorrect scores (target: near zero, checked periodically against the official calculator)
 - Bounce rate on the landing page
 
+**Discoverability**
+- Organic search impressions and clicks via Google Search Console
+
 ## 10. Decisions and open questions
 
 ### Resolved
@@ -234,6 +260,16 @@ Note on language bands: the scoring engine needs a band-to-CLB lookup table per 
 - **Job offer question**: confirmed excluded from v1 (see 6.1).
 - **Cross-device accounts**: confirmed interest, planned for the next iteration after v1 (see section 11). Not required for v1's core value.
 - **Feedback mechanism**: a `mailto:` link in the footer (dedicated alias, not personal email), matching the donation link's link-out pattern. No backend or third-party form for v1.
+- **SEO approach: static content over prerendering**: rather than adding a Playwright postbuild
+  step to prerender the SPA, v1 ships a hand-written static section in `index.html` (outside
+  `#root`) covering the same information a crawler would need — see 6.8. Reasoning: zero build
+  risk, no headless-browser dependency in the deploy pipeline, and the tool is a single route, so
+  there's no long tail of pages that would justify the added complexity. Revisit only if Search
+  Console reports rendering problems after this ships.
+- **Production domain**: `crsscenarios.com`, used for the canonical URL, Open Graph/Twitter `url`
+  tags, `robots.txt`'s `Sitemap:` line, `sitemap.xml`, and the `WebApplication` schema's `url`.
+- **OG share image**: deferred. No `og:image`/`twitter:image` shipped in this pass since no asset
+  exists yet; `twitter:card` is `summary` rather than `summary_large_image` until one is designed.
 
 ### Still open
 

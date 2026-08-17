@@ -3,16 +3,222 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>CRS Scenario Planner</title>
+    <script>document.documentElement.classList.add('js')</script>
+
+    <title>Express Entry CRS Calculator with Saved Scenarios</title>
+    <meta
+      name="description"
+      content="Calculate your Express Entry CRS score, save unlimited what-if scenarios in your browser, and compare them side by side. Free, private, no account needed."
+    />
+    <link rel="canonical" href="https://crsscenarios.com/" />
+    <meta name="theme-color" content="#FAF6F0" />
+
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="CRS Scenario Planner" />
+    <meta property="og:title" content="Express Entry CRS Calculator with Saved Scenarios" />
+    <meta
+      property="og:description"
+      content="Calculate your Express Entry CRS score, save unlimited what-if scenarios in your browser, and compare them side by side. Free, private, no account needed."
+    />
+    <meta property="og:url" content="https://crsscenarios.com/" />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Express Entry CRS Calculator with Saved Scenarios" />
+    <meta
+      name="twitter:description"
+      content="Calculate your Express Entry CRS score, save unlimited what-if scenarios in your browser, and compare them side by side. Free, private, no account needed."
+    />
+
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://storage.ko-fi.com" />
     <link
       href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;600;700;800&family=Figtree:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "WebApplication",
+            "name": "CRS Scenario Planner",
+            "description": "Calculate your Express Entry CRS score, save unlimited what-if scenarios in your browser, and compare them side by side. Free, private, no account needed.",
+            "url": "https://crsscenarios.com/",
+            "applicationCategory": "UtilitiesApplication",
+            "operatingSystem": "Any",
+            "offers": {
+              "@type": "Offer",
+              "price": "0",
+              "priceCurrency": "CAD"
+            }
+          },
+          {
+            "@type": "FAQPage",
+            "mainEntity": [
+              {
+                "@type": "Question",
+                "name": "What is a CRS score in Express Entry?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "The Comprehensive Ranking System (CRS) is the points-based score Immigration, Refugees and Citizenship Canada (IRCC) uses to rank candidates in the Express Entry pool for permanent residence. It's built from core human capital factors (age, education, language ability, work experience), points for an accompanying spouse or partner, skill transferability, and additional points such as a provincial nomination or sibling in Canada."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "How is this calculator different from the official IRCC tool?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "The official calculator makes you re-enter every answer from scratch each time you want to test a change. This planner lets you save a scenario, tweak one input — a language retest, a finished diploma, a provincial nomination — and see exactly how each change moves your score, without retyping everything you already entered."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Does this tool save my information?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Scenarios are saved in your browser's local storage only. Nothing is sent to a server, and there's no account or login. Clearing your browser data will remove your saved scenarios."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "How accurate is the CRS score this tool calculates?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "This calculator is provided for informational purposes only and is not immigration advice. We make our best effort to keep it accurate and current, but always confirm your score using the official IRCC calculator before making decisions."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Can I compare more than one scenario at once?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Yes. Save two or more scenarios and open the Compare view to see every input and score category side by side, with differences highlighted."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Is this an official Government of Canada tool?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "No. This is an independent, unofficial calculator. It isn't affiliated with IRCC or the Government of Canada."
+                }
+              }
+            ]
+          }
+        ]
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>
+
+    <noscript>
+      <div style="max-width: 640px; margin: 40px auto; padding: 20px; font-family: sans-serif; color: #3A3227;">
+        This calculator requires JavaScript to run interactively. You can still read about it below, or use the
+        <a href="https://www.canada.ca/en/immigration-refugees-citizenship/services/immigrate-canada/express-entry/eligibility/criteria-comprehensive-ranking-system/grid.html">
+          official IRCC CRS calculator
+        </a>
+        instead.
+      </div>
+    </noscript>
+
+    <section id="seo-content" aria-label="About the CRS Scenario Planner">
+      <div class="seo-content-inner">
+        <h1>Express Entry CRS Calculator &mdash; Save and Compare Scenarios</h1>
+        <p>
+          A free Express Entry CRS calculator that saves your scenarios in your browser, so you can test what-if
+          changes &mdash; a language retest, a finished diploma, a provincial nomination &mdash; and compare them
+          side by side without retyping everything from scratch.
+        </p>
+
+        <h2>What is the CRS score?</h2>
+        <p>
+          The Comprehensive Ranking System (CRS) is the points-based score Immigration, Refugees and Citizenship
+          Canada (IRCC) uses to rank candidates in the Express Entry pool for permanent residence. Your score is
+          built from core human capital factors (age, education, language ability, work experience), points for
+          an accompanying spouse or partner, skill transferability, and additional points such as a provincial
+          nomination or sibling in Canada. Candidates with higher CRS scores are more likely to receive an
+          invitation to apply.
+        </p>
+
+        <h2>What this tool does differently</h2>
+        <p>
+          The official IRCC calculator is built for a single pass: fill it in, get a score, and start over if you
+          want to test a change. This planner adds the "what if" layer &mdash; retake a language test, finish a
+          diploma, get a provincial nomination &mdash; and see exactly how each change moves your score, without
+          retyping everything you already entered.
+        </p>
+
+        <h2>How scenario saving works</h2>
+        <p>
+          Save a scenario and it's stored in your browser under a name you choose, with the score and every input
+          intact. Come back later, on the same browser and device, and it's waiting for you to reopen, edit, or
+          compare &mdash; no account, no re-entry.
+        </p>
+
+        <h2>Your privacy</h2>
+        <p>
+          Your data never leaves your browser. There's no account, no server-side storage, and no tracking of your
+          scores, language results, or other inputs. Analytics, if enabled, only records anonymous usage counts
+          like button clicks &mdash; never your answers.
+        </p>
+
+        <h2>Frequently asked questions</h2>
+
+        <h3>What is a CRS score in Express Entry?</h3>
+        <p>
+          The Comprehensive Ranking System (CRS) is the points-based score Immigration, Refugees and Citizenship
+          Canada (IRCC) uses to rank candidates in the Express Entry pool for permanent residence. It's built from
+          core human capital factors (age, education, language ability, work experience), points for an
+          accompanying spouse or partner, skill transferability, and additional points such as a provincial
+          nomination or sibling in Canada.
+        </p>
+
+        <h3>How is this calculator different from the official IRCC tool?</h3>
+        <p>
+          The official calculator makes you re-enter every answer from scratch each time you want to test a
+          change. This planner lets you save a scenario, tweak one input &mdash; a language retest, a finished
+          diploma, a provincial nomination &mdash; and see exactly how each change moves your score, without
+          retyping everything you already entered.
+        </p>
+
+        <h3>Does this tool save my information?</h3>
+        <p>
+          Scenarios are saved in your browser's local storage only. Nothing is sent to a server, and there's no
+          account or login. Clearing your browser data will remove your saved scenarios.
+        </p>
+
+        <h3>How accurate is the CRS score this tool calculates?</h3>
+        <p>
+          This calculator is provided for informational purposes only and is not immigration advice. We make our
+          best effort to keep it accurate and current, but always confirm your score using the official IRCC
+          calculator before making decisions.
+        </p>
+
+        <h3>Can I compare more than one scenario at once?</h3>
+        <p>
+          Yes. Save two or more scenarios and open the Compare view to see every input and score category side by
+          side, with differences highlighted.
+        </p>
+
+        <h3>Is this an official Government of Canada tool?</h3>
+        <p>No. This is an independent, unofficial calculator. It isn't affiliated with IRCC or the Government of Canada.</p>
+
+        <div class="seo-disclaimer">
+          <strong>Disclaimer:</strong> This calculator is provided for informational purposes only and is not
+          immigration advice. We make our best effort to keep it accurate and current, but we don't guarantee it
+          matches the official Government of Canada calculation, and we accept no liability for any loss or damage
+          arising from its use. Always confirm your score using the official IRCC tools before making decisions.
+        </div>
+      </div>
+    </section>
+
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
