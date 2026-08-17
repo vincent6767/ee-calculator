@@ -52,7 +52,7 @@ export function CompareView({ planner }: { planner: Planner }) {
 
   return (
     <main data-screen-label="Compare" style={{ maxWidth: 1120, width: '100%', margin: '0 auto', padding: '8px 20px 40px', flex: 1 }}>
-      <h1 style={{ fontFamily: headingFont, fontSize: 26, fontWeight: 800, margin: '0 0 6px' }}>Compare scenarios</h1>
+      <h2 style={{ fontFamily: headingFont, fontSize: 26, fontWeight: 800, margin: '0 0 6px' }}>Compare scenarios</h2>
 
       {!enough && (
         <>

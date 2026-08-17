@@ -8,7 +8,7 @@ export function ScenarioListView({ planner }: { planner: Planner }) {
   return (
     <main data-screen-label="My scenarios" style={{ maxWidth: 1120, width: '100%', margin: '0 auto', padding: '8px 20px 40px', flex: 1 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap', marginBottom: 22 }}>
-        <h1 style={{ fontFamily: headingFont, fontSize: 26, fontWeight: 800, margin: 0, flex: 1 }}>My scenarios</h1>
+        <h2 style={{ fontFamily: headingFont, fontSize: 26, fontWeight: 800, margin: 0, flex: 1 }}>My scenarios</h2>
         <button type="button" className="btn-solid" onClick={planner.newScenario} style={{ ...solidButton, padding: '10px 20px', fontSize: 13.5 }}>
           + New scenario
         </button>

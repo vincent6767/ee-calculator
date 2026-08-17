@@ -31,6 +31,9 @@ Node 22+'s built-in `localStorage` global shadows jsdom's in tests and lacks `.c
 - **High-fidelity design.** Colors, typography (Bricolage Grotesque + Figtree), spacing, radii, copy, and interactions should keep matching the handoff README's design tokens and `screenshots/`. `src/components/styles.ts` centralizes the shared style constants — extend it rather than hand-rolling new colors/radii inline.
 - **Keep the footer disclaimer** ("informational purposes only… not immigration advice") — it's a legal requirement of the product (spec §6.4).
 - **Scoring accuracy is a known, accepted gap, not a bug to silently fix.** The ported tables are labeled "approximate" and matched the prototype, not a fully-captured official flow doc across all five language tests (spec §7, §10). If asked to improve accuracy, that means adding real regression fixtures from the official calculator, not guessing at table values.
+- **`index.html` is not just a mount point.** It carries SEO-critical markup — title, meta description, canonical URL, Open Graph/Twitter tags, JSON-LD structured data, and a static content section (headline, explainer copy, FAQ, disclaimer) placed after `<div id="root">` so crawlers and JS-disabled visitors see real content (spec §6.8). That static section is hidden via CSS (`.js #seo-content` in `theme.css`) once React mounts, so JS-enabled visitors see the normal app, not duplicated content.
+- **The FAQ text is mirrored in JSON-LD.** `index.html`'s visible FAQ (`<h3>`/`<p>` pairs in `#seo-content`) and its `FAQPage` JSON-LD must stay word-for-word identical — Google penalizes a mismatch. `src/seo.test.ts` asserts they match; update both together or the test fails.
+- **`public/` is copied to `dist/` verbatim by Vite.** It holds `robots.txt`, `sitemap.xml`, and `favicon.svg`. Bump `sitemap.xml`'s `lastmod` when the site's content changes meaningfully.
 
 ## Architecture
 
@@ -49,7 +52,8 @@ src/
     compare/     CompareView.tsx
     styles.ts   shared design-token style helpers
   lib/        format.ts (fmtDate/fmtYears/eduLabel/langSummary/delta), analytics.ts (privacy-friendly event wrapper)
-  App.tsx, main.tsx, theme.css
+  App.tsx, main.tsx, theme.css, seo.test.ts (asserts index.html's SEO metadata and FAQ/JSON-LD parity)
+public/       robots.txt, sitemap.xml, favicon.svg — copied to dist/ verbatim by Vite
 ```
 
 Key behaviors to preserve:
