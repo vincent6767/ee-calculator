@@ -22,6 +22,15 @@ describe('Footer', () => {
     expect(screen.getByText(/not immigration advice/)).toBeInTheDocument();
   });
 
+  it('links to the guides hub in a new tab', () => {
+    const { result } = renderHook(() => usePlanner());
+    render(<Footer planner={result.current} />);
+    const link = screen.getByText('Guides & explainers');
+    expect(link).toHaveAttribute('href', '/guides/');
+    expect(link).toHaveAttribute('target', '_blank');
+    expect(link).toHaveAttribute('rel', 'noopener');
+  });
+
   describe('feedback button', () => {
     afterEach(() => {
       delete (window as unknown as { plausible?: unknown }).plausible;
